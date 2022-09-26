@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
+
     <!--左侧导航栏 -->
     <div class="nav_l" >
       <ul>
@@ -41,15 +42,19 @@
     <div class="nav_t" >
       <ul>
         <li class="nav_t_main"><a href="#">
-          <img src="./src/assets/main-icon.png" alt="" srcset="" width="40px">
+          <img src="./src/assets/main-icon.png" alt="" srcset="" width="48px">
         </a></li>
         <input type="text" class="nav_t_search" >
         <li class="nav_t_doc"><a href="#">文档</a></li>
       </ul>
     </div>
 
+    <!-- 页面中央渲染内容 -->
     <div class="main_container">
-      <div id="app"></div>
+      <div id="app">
+        <!-- <router-link to="/test" >test</router-link>
+        <router-view></router-view> -->
+      </div>
     </div>
 
     <script type="module" src="./src/main.js"></script>
