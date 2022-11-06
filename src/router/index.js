@@ -1,14 +1,70 @@
-const test = { template: '<div>Home</div>' }
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import DocView from '../views/DocView.vue'
+import CommunityView from '../views/CommunityView.vue'
+import GifgenView from '../views/GifgenView.vue'
+import LoginView from '../views/LoginView.vue'
+import MyassetsView from '../views/MyassetsView.vue'
+import MydesignView from '../views/MydesignView.vue'
+import MyfavouriteView from '../views/MyfavouriteView.vue'
+import PostergenView from '../views/PostergenView.vue'
+import RegistView from '../views/RegistView.vue'
 
-const routes = [
-  { path: '/', component: () => import('../components/Home.vue') },
-  { path: '/login', component: () => import('../components/Login.vue') },
-  { path: '/register', component: () => import('../components/Register.vue') },
-  { path: '/test', component: test},
-]
 
-const router = VueRouter.createRouter({
-  routes
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView
+    },
+    {
+      path: '/doc',
+      name: 'doc',
+      component: DocView
+    },
+    {
+      path: '/community',
+      name: 'community',
+      component: CommunityView
+    },
+    {
+      path: '/gifgen',
+      name: 'gifgen',
+      component: GifgenView
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView
+    },
+    {
+      path: '/myassets',
+      name: 'myassets',
+      component: MyassetsView
+    },
+    {
+      path: '/mydesign',
+      name: 'mydesign',
+      component: MydesignView
+    },
+    {
+      path: '/myfavourite',
+      name: 'myfavourite',
+      component: MyfavouriteView
+    },
+    {
+      path: '/postergen',
+      name: 'postergen',
+      component: PostergenView 
+    },
+    {
+      path: '/regist',
+      name: 'regist',
+      component: RegistView 
+    }
+  ]
 })
 
 export default router
