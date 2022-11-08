@@ -1,29 +1,18 @@
-# vue_01
+# website_design
 
-This template should help get you started developing with Vue 3 in Vite.
+## Easy run
 
-## Recommended IDE Setup
+need two shells:
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
+shell1:
+```shell
+npm i
 npm run dev
 ```
 
-### Compile and Minify for Production
-
-```sh
-npm run build
+shell2:
+```shell
+pip install flask
+cd backend
+flask run --port 2145
 ```

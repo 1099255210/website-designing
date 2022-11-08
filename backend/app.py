@@ -2,6 +2,12 @@ from flask import Flask
 from flask import request
 from pymongo import MongoClient
 
+import mainneon
+
+'''
+Please run this in port 2145
+'''
+
 app = Flask(__name__)
 
 mongouri = 'mongodb://localhost:27017'
@@ -17,9 +23,22 @@ def login():
 
 @app.route('/regist', methods=['POST'])
 def regist():
+  print(request.form)
   userName = request.form['userName']
   userPwd = request.form['userPwd']
   return excute_regist({'userName': userName, 'userPwd': userPwd})
+
+@app.route('/gifgen', methods=['POST'])
+def gifgen():
+  res = request.json
+  words = res['words'].split('\n')
+  direction = res['direction']
+  time = 5
+  if ("time" in res):
+    time = res['time']
+  print(words, direction, time)
+  imgpath = mainneon.generate(words, time)
+  return imgpath
 
 
 def validate_login(form:dict):

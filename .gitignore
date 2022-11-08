@@ -27,3 +27,5 @@ coverage
 *.sln
 *.sw?
 __pycache__
+__plugin__
+*.gif
