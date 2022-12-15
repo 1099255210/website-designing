@@ -1,5 +1,9 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import userInfo from './stores/stores'
+
+const userStore = userInfo()
+
 </script>
 
 

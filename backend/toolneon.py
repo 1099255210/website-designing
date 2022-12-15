@@ -83,25 +83,26 @@ def addNeonTextSet(
   posSet= None,
   colorSet = None,
   directionSet = None,
+  direction = ''
 ):
   '''
   Add a set of neon texts to image by passing text, image and fontpath,\n
   return the image in Mat.\n
   The color and position is randomly chosen(or using other algorithms).\n
   optional parameters:\n
-  - directionSet: str. Default: None. Examples: 'random', 'rtl', 'ttb'.\n
+  - directionSet: List[str]. Default: None. \n
+  - direction: str. Default: None. Examples: 'random', 'rtl', 'ttb'.\n
+      if direction is set, directionSet will be invalid.
   '''
 
   imgSize = (img.shape[0], img.shape[1])
   # Generate direction set
-  if directionSet == 'random':
+  if direction == 'random':
     directionSet = dirctionArrangement(textSet)
-  elif directionSet == 'rtl':
+  elif direction == 'rtl':
     directionSet = ['rtl' for _ in textSet]
-  elif directionSet == 'ttb':
+  elif direction == 'ttb':
     directionSet = ['ttb' for _ in textSet]
-  else:
-    directionSet = ['rtl' for _ in textSet]
   # Generate position set
   try:
     posSet = positionArrangement(imgSize, textSet, fontpath, fontsize, directionSet=directionSet) if not posSet else posSet
@@ -181,16 +182,16 @@ def createNeonSeq(
   img: cv.Mat,
   fontpath: str,
   fontsize= 50,
-  time = 5,
-  directionSet= 'rtl'
+  duration = 5,
+  direction= 'rtl'
 ) -> List[cv.Mat]:
 
   imgSize = (img.shape[0], img.shape[1])
-  if directionSet == 'random':
+  if direction == 'random':
     directionSet = dirctionArrangement(textSet)
-  elif directionSet == 'rtl':
+  elif direction == 'rtl':
     directionSet = ['rtl' for _ in textSet]
-  elif directionSet == 'ttb':
+  elif direction == 'ttb':
     directionSet = ['ttb' for _ in textSet]
   else:
     directionSet = ['rtl' for _ in textSet]
@@ -199,7 +200,7 @@ def createNeonSeq(
   except(ValueError):
     raise OutofimgException("Text out of image range.")
   frames:List[Image.Image] = []
-  for _ in range(0, time // 1):
+  for _ in range(0, duration // 1):
     tFrame = addNeonTextSet(
       textSet,
       img,
@@ -219,22 +220,36 @@ def generateGifPoster(
   fontsize= 100,
   imgsize= (800, 800),
   img= None,
-  time= 5,
+  direction= 'rtl',
+  duration= 5,
   frametime= 0.5,
   destpath= './gen/',
   nums = 3,
-  prefix = 'newgen_',
+  prefix = 'newgen',
+  usetimestamp = True,
 ):
   if not img:
     img = np.zeros((imgsize[0], imgsize[1], 3), dtype=np.uint8)
   if not os.path.exists(destpath):
     os.mkdir(destpath)
+  timestamp = '' if not usetimestamp else int(time.time())
+  files = []
   for i in range(nums):
-    frames = createNeonSeq(textSet, img, fontpath, fontsize, time)
-    filename = f'{destpath}{prefix}{i}.gif'
-    with imageio.get_writer(filename, mode="I", duration=frametime) as writer:
-      for idx, frame in enumerate(frames):
-        writer.append_data(frame)
+    try:
+      print(f'P{i} start.')
+      frames = createNeonSeq(textSet, img, fontpath, fontsize, duration, direction)
+      frames = [cv.cvtColor(fs, cv.COLOR_BGR2RGB) for fs in frames]
+      filename = f'{destpath}{prefix}_{timestamp}_{i}.gif'
+      files.append(filename)
+      with imageio.get_writer(filename, mode="I", duration=frametime) as writer:
+        for idx, frame in enumerate(frames):
+          writer.append_data(frame)
+      
+    except(OutofimgException):
+      return None
+  
+  return files  
+
 
 # Test unit
 if __name__ == '__main__':
@@ -275,4 +290,4 @@ if __name__ == '__main__':
   Generate neon gif
   '''
   textSet = ['Coffee', 'BAR', 'KTV']
-  generateGifPoster(textSet, './font/QingKe.ttf', 200, (300, 300))
+  generateGifPoster(textSet, './font/QingKe.ttf', 100, (800, 800), direction='random')

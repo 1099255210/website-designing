@@ -33,11 +33,12 @@ def gifgen():
   res = request.json
   words = res['words'].split('\n')
   direction = res['direction']
-  time = 5
+  duration = 5
   if ("time" in res):
-    time = res['time']
-  print(words, direction, time)
-  imgpath = mainneon.generate(words, time)
+    duration = res['time']
+  print(words, direction, duration)
+  imgpath = mainneon.generate(words, duration, direction)
+  print(imgpath)
   return imgpath
 
 
