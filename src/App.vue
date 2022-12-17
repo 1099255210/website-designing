@@ -59,6 +59,9 @@ const userStore = userInfo()
       <li>
         <RouterLink to="/regist">注册</RouterLink>
       </li>
+      <li>
+        <RouterLink to="/test">测试</RouterLink>
+      </li>
     </ul>
   </div>
 
