@@ -1,10 +1,10 @@
 <script setup>
-defineProps({
-  link: {
-    type: String,
-    required: true
-  }
-})
+  defineProps({
+    link: {
+      type: String,
+      required: true
+    }
+  })
 </script>
 
 <template>

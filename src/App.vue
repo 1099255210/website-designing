@@ -1,5 +1,9 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import userInfo from './stores/stores'
+
+const userStore = userInfo()
+
 </script>
 
 
@@ -54,6 +58,9 @@ import { RouterLink, RouterView } from 'vue-router'
       </li>
       <li>
         <RouterLink to="/regist">注册</RouterLink>
+      </li>
+      <li>
+        <RouterLink to="/test">测试</RouterLink>
       </li>
     </ul>
   </div>

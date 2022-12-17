@@ -9,6 +9,7 @@ import MydesignView from '../views/MydesignView.vue'
 import MyfavouriteView from '../views/MyfavouriteView.vue'
 import PostergenView from '../views/PostergenView.vue'
 import RegistView from '../views/RegistView.vue'
+import TestView from '../views/TestView.vue'
 
 
 const router = createRouter({
@@ -63,6 +64,11 @@ const router = createRouter({
       path: '/regist',
       name: 'regist',
       component: RegistView 
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: TestView
     }
   ]
 })

@@ -67,7 +67,6 @@ export default {
       </FormKit>
     </div>
     <div class="right">
-      <!-- <img :src="link" alt="img"> -->
       <Gifshow :link="link" :key="componentKey"/>
     </div>
   </div>
