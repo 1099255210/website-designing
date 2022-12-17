@@ -17,16 +17,23 @@ collection = db['users']
 
 @app.route('/login', methods=['POST'])
 def login():
-  userName = request.form['userName']
-  userPwd = request.form['userPwd']
+  res = request.json
+  userName = res['userName']
+  userPwd = res['userPwd']
   return validate_login({'userName': userName, 'userPwd': userPwd})
+  # userName = request.form['userName']
+  # userPwd = request.form['userPwd']
+  # return validate_login({'userName': userName, 'userPwd': userPwd})
 
 @app.route('/regist', methods=['POST'])
 def regist():
-  print(request.form)
-  userName = request.form['userName']
-  userPwd = request.form['userPwd']
+  res = request.json
+  userName = res['userName']
+  userPwd = res['userPwd']
   return excute_regist({'userName': userName, 'userPwd': userPwd})
+  # userName = request.form['userName']
+  # userPwd = request.form['userPwd']
+  # return excute_regist({'userName': userName, 'userPwd': userPwd})
 
 @app.route('/gifgen', methods=['POST'])
 def gifgen():
