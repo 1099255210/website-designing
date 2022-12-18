@@ -1,5 +1,4 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
 import userInfo from './stores/stores'
 
 const userStore = userInfo()
@@ -10,7 +9,7 @@ const userStore = userInfo()
 <template>
 
   <!--顶部导航栏 -->
-  <div class="nav_t" >
+  <!-- <div class="nav_t" >
     <ul>
       <li class="nav_t_main">
         <RouterLink to="/">
@@ -22,7 +21,13 @@ const userStore = userInfo()
         <RouterLink to="/doc">文档</RouterLink>
       </li>
     </ul>
-  </div>
+  </div> -->
+
+  <v-app>
+    <v-app-bar>
+
+    </v-app-bar>
+  </v-app>
 
   <div class="nav_l" >
     <ul>

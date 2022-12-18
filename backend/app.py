@@ -52,15 +52,15 @@ def gifgen():
 def validate_login(form:dict):
   res = collection.find_one({'userName': form['userName']})
   if not res:
-    return 'User does not exists.'
+    return {'code': -1, 'msg': 'User does not exists.'}
   if res['userPwd'] != form['userPwd']:
-    return 'Password wrong.'
-  return 'Login successful.'
-
+    return {'code': -1, 'msg': 'Password wrong.'}
+  return {'code': 0, 'msg': 'Login successful.'}
+  
 
 def excute_regist(form:dict):
   res = collection.find_one({'userName': form['userName']})
   if res:
-    return 'User has been registered.'
+    return {'code': -1, 'msg': 'User has been registered.'}
   collection.insert_one(form)
-  return 'Register successful.'
+  return {'code': -1, 'msg': 'Register successful.'}
