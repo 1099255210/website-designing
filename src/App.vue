@@ -5,75 +5,121 @@ const userStore = userInfo()
 
 </script>
 
-
 <template>
+  <v-card>
+    <v-app>
+      <v-navigation-drawer
+        expand-on-hover
+        rail
+      >
+        <v-list>
+          <!-- 
+          <p class="body1" id="username">Hg</p>
+          <p class="body2 text-medium-emphasis" id="email">1099255210@qq.com</p> -->
+          <v-list-item
+            title="Hg"
+            subtitle="1099255210@qq.com"
+          >
+            <template #prepend>
+              <v-avatar color="primary">Hg</v-avatar>
+            </template>
+          </v-list-item>
+        </v-list>
 
-  <!--顶部导航栏 -->
-  <!-- <div class="nav_t" >
-    <ul>
-      <li class="nav_t_main">
-        <RouterLink to="/">
-          <img src="./assets/main-icon.png" alt="" srcset="" width="48">
-        </RouterLink>
-      </li>
-      <input type="text" class="nav_t_search" >
-      <li class="nav_t_doc">
-        <RouterLink to="/doc">文档</RouterLink>
-      </li>
-    </ul>
-  </div> -->
+        <v-divider></v-divider>
 
+        <v-list density="compact" nav>
+          <v-list-item 
+            v-for="item in items"
+            :prepend-icon="item.icon"
+            :key="item.title"
+            :title="item.title"
+            :value="item.title"
+            :to="item.router">
+          </v-list-item>
+          <!-- <v-list-item title="Shared with me" value="shared"></v-list-item>
+          <v-list-item prepend-icon="mdi-star" title="Starred" value="starred"></v-list-item> -->
+        </v-list>
+      </v-navigation-drawer>
+      <v-app-bar color="grey-lighten-4"></v-app-bar>
+      <v-main class="bg-grey-lighten-5">
+        <v-container class="py-10 px-10" fluid>
+          <RouterView/>
+        </v-container>
+      </v-main>
+    </v-app>
+  </v-card>
+  
+</template>
+
+
+<!-- <template>
   <v-app>
-    <v-app-bar>
 
-    </v-app-bar>
+    <div class="nav_t" >
+      <ul>
+        <li class="nav_t_main">
+          <RouterLink to="/">
+            <img src="./assets/main-icon.png" alt="" srcset="" width="48">
+          </RouterLink>
+        </li>
+        <input type="text" class="nav_t_search" >
+        <li class="nav_t_doc">
+          <RouterLink to="/doc">文档</RouterLink>
+        </li>
+      </ul>
+    </div>
+
+    <v-app-bar
+      elevation="4"
+    ></v-app-bar>
+
+    <div class="nav_l" >
+      <ul>
+        <li>
+          <div class="dividingline"></div>
+        </li>
+        <li>
+          <RouterLink to="/community">设计社区</RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/postergen">商品海报生成</RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/gifgen">动态海报生成</RouterLink>
+        </li>
+        <li>
+          <div class="dividingline"></div>
+        </li>
+        <li>
+          <RouterLink to="/mydesign">我的设计</RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/myassets">我的素材</RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/myfavourite">我的收藏</RouterLink>
+        </li>
+        <li>
+          <div class="dividingline"></div>
+        </li>
+        <li>
+          <RouterLink to="/login">登录</RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/regist">注册</RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/test">测试</RouterLink>
+        </li>
+      </ul>
+    </div>
+
+    <div class="main_container">
+      <RouterView />
+    </div>
+
   </v-app>
-
-  <div class="nav_l" >
-    <ul>
-      <li>
-        <div class="dividingline"></div>
-      </li>
-      <li>
-        <RouterLink to="/community">设计社区</RouterLink>
-      </li>
-      <li>
-        <RouterLink to="/postergen">商品海报生成</RouterLink>
-      </li>
-      <li>
-        <RouterLink to="/gifgen">动态海报生成</RouterLink>
-      </li>
-      <li>
-        <div class="dividingline"></div>
-      </li>
-      <li>
-        <RouterLink to="/mydesign">我的设计</RouterLink>
-      </li>
-      <li>
-        <RouterLink to="/myassets">我的素材</RouterLink>
-      </li>
-      <li>
-        <RouterLink to="/myfavourite">我的收藏</RouterLink>
-      </li>
-      <li>
-        <div class="dividingline"></div>
-      </li>
-      <li>
-        <RouterLink to="/login">登录</RouterLink>
-      </li>
-      <li>
-        <RouterLink to="/regist">注册</RouterLink>
-      </li>
-      <li>
-        <RouterLink to="/test">测试</RouterLink>
-      </li>
-    </ul>
-  </div>
-
-  <!-- 页面中央渲染内容 -->
-  <div class="main_container">
-    <RouterView />
-  </div>
 
 </template>
 
@@ -179,4 +225,22 @@ ul {
 }
 
 
-</style>
+</style> -->
+
+<script>
+export default {
+  data() {
+    return {
+      items: [
+        {icon: 'mdi-star', title:'设计社区', router:'/community'},
+        {icon: 'mdi-star', title:'商品海报生成', router:'/postergen'},
+        {icon: 'mdi-star', title:'动态海报生成', router:'/gifgen'},
+        {icon: 'mdi-star', title:'我的设计', router:'/mydesign'},
+        {icon: 'mdi-star', title:'我的素材', router:'/myassets'},
+        {icon: 'mdi-star', title:'我的收藏', router:'/myfavourite'},
+        {icon: 'mdi-star', title:'测试', router:'/test'},
+      ]
+    }
+  }
+}
+</script>
