@@ -8,8 +8,8 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
     <v-col cols="3">
       <v-card class="mx-auto" max-width="344" variant="outlined">
         <v-card-item>
-          <div class="text-overline mb-1">自定义画板</div>
-          <div class="text-h6 mb-1">海报生成</div>
+          <div class="text-overline mb-1">Test</div>
+          <div class="text-h6 mb-1">测试功能</div>
         </v-card-item>
       </v-card>
     </v-col>
@@ -232,7 +232,7 @@ export default {
       URL.revokeObjectURL(link.href);
     },
     downloadJSON() {
-      var file = new Blob([JSON.stringify(this.canvas)], {
+      var file = new Blob([JSON.stringify(this.canvas, null, "\t")], {
         type: "text/plain",
       })
       var filename = new Date().getTime().toString() + ".json";
