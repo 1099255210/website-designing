@@ -1,13 +1,18 @@
 <script setup>
 import axios from "axios";
+import { userInfoStore } from '@/stores/stores.js'
 axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
+const userInfo = userInfoStore()
 </script>
 
 <script>
 export default {
   data() {
     return {
-      message: "",
+      alertType: "",
+      operated: false,
+      msgTitle: "",
+      msgText: "",
       valid: false,
       showPwd: false,
       userName: "",
@@ -35,24 +40,75 @@ export default {
   methods: {
     login() {
       const data = { userName: this.userName, userPwd: this.userPwd };
-      console.log(data);
-      const res = axios.post("/api/login", data);
-      this.message = res["data"]["msg"];
+      axios.post("/api/login", data).then((res) => {
+        console.log(res);
+        this.msgTitle = res["data"]["type"];
+        this.msgText = res["data"]["msg"];
+        if (res["data"]["code"] == 0) {
+          this.alertType = "success";
+        } else {
+          this.alertType = "error";
+        }
+        this.operated = true;
+      });
     },
     regist() {
       const data = { userName: this.userName, userPwd: this.userPwd };
-      console.log(data);
-      const res = axios.post("/api/regist", data);
-      this.message = res["data"]["msg"];
+      axios.post("/api/regist", data).then((res) => {
+        console.log(res);
+        this.msgTitle = res["data"]["type"];
+        this.msgText = res["data"]["msg"];
+        if (res["data"]["code"] == 0) {
+          this.alertType = "success";
+          userInfo.setName(this.userName);
+        } else {
+          this.alertType = "error";
+        }
+        this.operated = true;
+      });
     },
     getImageUrl(name) {
       return new URL(`../assets/${name}`, import.meta.url).href;
     },
+    refreshMsg() {
+      this.operated = false;
+    }
   },
+  mounted() {
+    this.operated = false;
+  }
 };
 </script>
 
 <template>
+  <v-fade-transition>
+    <v-card>
+      <v-img
+        class="align-end text-white"
+        height="190px"
+        :src="getImageUrl('login-img.jpg')"
+        cover
+      >
+        <v-card-text>
+          <p class="text-h4">&nbsp;海报创作平台</p>
+        </v-card-text>
+      </v-img>
+      <v-card-text>
+        <v-btn-toggle v-model="loginornot" color="blue-grey-darken-2">
+          <v-btn :value="true" @click="refreshMsg">登录</v-btn>
+          <v-btn :value="false" @click="refreshMsg">注册</v-btn>
+        </v-btn-toggle>
+      </v-card-text>
+      <v-card-text>
+        <v-form ref="form" v-model="valid" lazy-validation>
+          <v-text-field
+            variant="outlined"
+            v-model="userName"
+            :counter="20"
+            :rules="rules.name"
+            label="用户名"
+            required
+          ></v-text-field>
   <v-card>
     <v-img
       class="align-end text-white"
@@ -81,50 +137,60 @@ export default {
           required
         ></v-text-field>
 
-        <v-text-field
-          variant="outlined"
-          v-model="userPwd"
-          :type="showPwd ? 'text' : 'password'"
-          :rules="rules.pwd"
-          label="密码"
-          required
-        ></v-text-field>
+          <v-text-field
+            variant="outlined"
+            v-model="userPwd"
+            :type="showPwd ? 'text' : 'password'"
+            :rules="rules.pwd"
+            label="密码"
+            required
+          ></v-text-field>
 
-        <v-text-field
-          v-if="!loginornot"
-          variant="outlined"
-          v-model="userPwdConfirm"
-          :type="showPwd ? 'text' : 'password'"
-          :rules="rules.pwdVerify"
-          label="确认密码"
-          required
-        ></v-text-field>
-      </v-form>
-      <div class="d-flex justify-space-between">
-        <v-btn
-          v-if="loginornot"
-          color="success"
-          @click="login"
-          :disabled="!valid"
-          >确认</v-btn
-        >
-        <v-btn
-          v-if="!loginornot"
-          color="success"
-          @click="regist"
-          :disabled="!valid"
-          >确认</v-btn
-        >
-        <v-checkbox
-          class="pl-4"
-          v-model="showPwd"
-          hide-details
-          density="compact"
-          color="blue-grey-darken-2"
-          label="显示密码"
-        ></v-checkbox>
-      </div>
-    </v-card-text>
-    <br />
-  </v-card>
+          <v-text-field
+            v-if="!loginornot"
+            variant="outlined"
+            v-model="userPwdConfirm"
+            :type="showPwd ? 'text' : 'password'"
+            :rules="rules.pwdVerify"
+            label="确认密码"
+            required
+          ></v-text-field>
+        </v-form>
+        <div class="d-flex justify-space-between">
+          <v-btn
+            v-if="loginornot"
+            color="success"
+            @click="login"
+            :disabled="!valid"
+            >登录</v-btn
+          >
+          <v-btn
+            v-if="!loginornot"
+            color="success"
+            @click="regist"
+            :disabled="!valid"
+            >注册</v-btn
+          >
+          <v-checkbox
+            class="pl-4"
+            v-model="showPwd"
+            hide-details
+            density="compact"
+            color="blue-grey-darken-2"
+            label="显示密码"
+          ></v-checkbox>
+        </div>
+      </v-card-text>
+      <br />
+    </v-card>
+  </v-fade-transition>
+  <v-fade-transition>
+    <v-alert
+      v-model="operated"
+      :type=alertType
+      :title=msgTitle
+      :text=msgText
+    ></v-alert>
+  </v-fade-transition>
+  
 </template>

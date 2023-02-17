@@ -21,9 +21,7 @@ def login():
   userName = res['userName']
   userPwd = res['userPwd']
   return validate_login({'userName': userName, 'userPwd': userPwd})
-  # userName = request.form['userName']
-  # userPwd = request.form['userPwd']
-  # return validate_login({'userName': userName, 'userPwd': userPwd})
+
 
 @app.route('/regist', methods=['POST'])
 def regist():
@@ -31,9 +29,7 @@ def regist():
   userName = res['userName']
   userPwd = res['userPwd']
   return excute_regist({'userName': userName, 'userPwd': userPwd})
-  # userName = request.form['userName']
-  # userPwd = request.form['userPwd']
-  # return excute_regist({'userName': userName, 'userPwd': userPwd})
+
 
 @app.route('/gifgen', methods=['POST'])
 def gifgen():
@@ -52,15 +48,15 @@ def gifgen():
 def validate_login(form:dict):
   res = collection.find_one({'userName': form['userName']})
   if not res:
-    return {'code': -1, 'msg': 'User does not exists.'}
+    return {'code': -1, 'type': '该用户不存在', 'msg': '请检查用户名输入是否正确或注册新账号'}
   if res['userPwd'] != form['userPwd']:
-    return {'code': -1, 'msg': 'Password wrong.'}
-  return {'code': 0, 'msg': 'Login successful.'}
+    return {'code': -1, 'type': '用户名或密码错误', 'msg': '请检查用户名与密码是否正确'}
+  return {'code': 0, 'type': '登录成功！', 'msg': '欢迎来到海报设计平台！'}
   
 
 def excute_regist(form:dict):
   res = collection.find_one({'userName': form['userName']})
   if res:
-    return {'code': -1, 'msg': 'User has been registered.'}
+    return {'code': -1, 'type': '用户名已被注册', 'msg': '请更换用户名'}
   collection.insert_one(form)
-  return {'code': -1, 'msg': 'Register successful.'}
+  return {'code': 0, 'type': '注册成功', 'msg': '欢迎您成为我们的一员！'}

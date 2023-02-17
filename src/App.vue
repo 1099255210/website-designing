@@ -1,8 +1,8 @@
 <script setup>
-import { userInfo } from './stores/stores'
+import { userInfoStore } from '@/stores/stores'
 import Logintest from './components/Logintest.vue'
 
-const store = userInfo()
+const store = userInfoStore()
 const userName = store.userName
 const userEmail = store.userEmail
 const subtitle = store.subtitle
