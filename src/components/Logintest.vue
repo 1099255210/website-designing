@@ -109,34 +109,6 @@ export default {
             label="用户名"
             required
           ></v-text-field>
-  <v-card>
-    <v-img
-      class="align-end text-white"
-      height="190px"
-      :src="getImageUrl('login-img.jpg')"
-      cover
-    >
-      <v-card-text>
-        <p class="text-h4">&nbsp;电子商务海报智能设计平台</p>
-      </v-card-text>
-    </v-img>
-    <v-card-text>
-      <v-btn-toggle v-model="loginornot" color="blue-grey-darken-2">
-        <v-btn :value="true">登录</v-btn>
-        <v-btn :value="false">注册</v-btn>
-      </v-btn-toggle>
-    </v-card-text>
-    <v-card-text>
-      <v-form ref="form" v-model="valid" lazy-validation>
-        <v-text-field
-          variant="outlined"
-          v-model="userName"
-          :counter="20"
-          :rules="rules.name"
-          label="用户名"
-          required
-        ></v-text-field>
-
           <v-text-field
             variant="outlined"
             v-model="userPwd"
