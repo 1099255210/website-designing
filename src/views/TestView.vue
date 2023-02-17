@@ -94,6 +94,7 @@ export default {
   data() {
     return {
       message: "",
+      imageFile: "",
       shapeProp: {
         outline: 0,
         outlineColor: '#00ffff',
@@ -128,6 +129,16 @@ export default {
         selectionColor: "transparent",
         selectionDashArray: [4, 4],
         selectionLineWidth: 1,
+      })
+      this.canvas.on('mouse:down', function(options) {
+        if (options.target) {
+          console.log('an object was clicked! ', options.target.type);
+        }
+      });
+      this.canvas.on('selection:created', function(options) {
+        if (options.selected.length == 1) {
+          console.log('selected one obj');
+        }
       })
     },
     redefineBB(obj) {
@@ -214,6 +225,9 @@ export default {
       });
       this.redefineBB(tb);
       this.canvas.add(tb);
+    },
+    uploadImage() {
+
     },
 
     /*

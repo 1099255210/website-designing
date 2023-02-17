@@ -61,7 +61,7 @@ export default {
       cover
     >
       <v-card-text>
-        <p class="text-h4">&nbsp;海报创作平台</p>
+        <p class="text-h4">&nbsp;电子商务海报智能设计平台</p>
       </v-card-text>
     </v-img>
     <v-card-text>
@@ -123,16 +123,6 @@ export default {
           color="blue-grey-darken-2"
           label="显示密码"
         ></v-checkbox>
-        <!-- <v-switch
-          style="width:100px; margin: 0 auto"
-          v-model="showPwd"
-          hide-details
-          density="compact"
-          color="blue-grey-darken-2"
-          label="显示密码"
-          :true-value="true"
-          :false-value="false"
-        ></v-switch> -->
       </div>
     </v-card-text>
     <br />

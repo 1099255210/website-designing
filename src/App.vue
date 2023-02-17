@@ -23,10 +23,10 @@ const loginStatus = store.loginStatus
             :subtitle="subtitle"
           >
             <template #prepend>
-              <v-avatar color="#E0E0E0" v-if="loginStatus">
+              <v-avatar color="#7a7a7a" v-if="loginStatus">
                 <p class="text-caption" v-if="loginStatus">{{ userName }}</p>
               </v-avatar>
-              <v-avatar color="#E0E0E0" v-if="!loginStatus" @click="loginDialog = true" style="cursor:pointer">
+              <v-avatar color="#7a7a7a" v-if="!loginStatus" @click="loginDialog = true" style="cursor:pointer">
                 <p class="text-caption" v-if="loginStatus">{{ userName }}</p>
               </v-avatar>
             </template>

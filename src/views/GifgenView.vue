@@ -22,8 +22,16 @@ export default {
 </script>
 
 <template>
-  <div class="contain">
-    <div class="left">
+  <v-row>
+    <v-col cols="3">
+      <v-card class="mx-auto" max-width="344" variant="outlined">
+        <v-card-item>
+          <div class="text-overline mb-1">GIF poster</div>
+          <div class="text-h6 mb-1">动态海报生成</div>
+        </v-card-item>
+      </v-card>
+    </v-col>
+    <v-col cols="4">
       <FormKit
         type="form"
         :value="{
@@ -65,21 +73,9 @@ export default {
           placeholder="单位:秒（默认为5）"
         />
       </FormKit>
-    </div>
-    <div class="right">
+    </v-col>
+    <v-col cols="5">
       <Gifshow :link="link" :key="componentKey"/>
-    </div>
-  </div>
+    </v-col>
+  </v-row>
 </template>
-
-<style scoped>
-.contain {
-  display: flex;
-  flex-direction: row;
-}
-
-.right {
-  margin: 50px;
-}
-
-</style>
