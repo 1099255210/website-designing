@@ -13,10 +13,10 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
         </v-card-item>
       </v-card>
     </v-col>
-    <v-col cols="4">
+    <v-col cols="5">
       <canvas id="main_canvas" width="512" height="512"></canvas>
     </v-col>
-    <v-col cols="5">
+    <v-col cols="4">
       <v-card class="mx-auto" max-width="600">
         <v-card-item>
           <v-card-title>属性</v-card-title>
