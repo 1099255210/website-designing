@@ -99,7 +99,7 @@ export default {
         </v-card-text>
       </v-img>
       <v-card-text>
-        <v-btn-toggle v-model="loginornot" color="blue-grey-darken-2">
+        <v-btn-toggle v-model="loginornot" color="blue-grey-darken-2" mandatory>
           <v-btn :value="true" @click="refreshMsg">登录</v-btn>
           <v-btn :value="false" @click="refreshMsg">注册</v-btn>
         </v-btn-toggle>
