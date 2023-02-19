@@ -1,12 +1,10 @@
 <script setup>
 import { userInfoStore } from '@/stores/stores'
 import Logintest from './components/Logintest.vue'
+import { storeToRefs } from 'pinia'
 
 const store = userInfoStore()
-const userName = store.userName
-const userEmail = store.userEmail
-const subtitle = store.subtitle
-const loginStatus = store.loginStatus
+const { userName, userEmail, subtitle, loginStatus, short } = storeToRefs(store)
 
 </script>
 
@@ -24,10 +22,10 @@ const loginStatus = store.loginStatus
           >
             <template #prepend>
               <v-avatar color="#7a7a7a" v-if="loginStatus">
-                <p class="text-caption" v-if="loginStatus">{{ userName }}</p>
+                <p style="color: aliceblue; cursor:pointer" class="text-caption" v-if="loginStatus" title="切换账号" @click="cancelLogin">{{ short }}</p>
               </v-avatar>
-              <v-avatar color="#7a7a7a" v-if="!loginStatus" @click="loginDialog = true" style="cursor:pointer">
-                <p class="text-caption" v-if="loginStatus">{{ userName }}</p>
+              <v-avatar color="#7a7a7a" v-if="!loginStatus" @click="loginDialog=true" title="登录" style="cursor:pointer">
+                <p class="text-caption" v-if="loginStatus">{{ short }}</p>
               </v-avatar>
             </template>
           </v-list-item>
@@ -59,7 +57,7 @@ const loginStatus = store.loginStatus
     width="500px"
     v-model="loginDialog"
   >
-    <Logintest />
+    <Logintest @closeLogin="loginDialog=false" />
   </v-dialog>
 
 </template>
@@ -79,6 +77,16 @@ export default {
       ],
       loginDialog: false,
     }
+  },
+  methods: {
+    cancelLogin() {
+      const userInfo = userInfoStore()
+      userInfo.setStatus("登录", "点击左侧圆点登录", "点击左侧圆点登录", 0, "");
+      this.loginDialog = true;
+    },
+  },
+  components: {
+    Logintest,
   }
 }
 </script>

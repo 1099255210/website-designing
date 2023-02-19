@@ -1,15 +1,14 @@
 <script setup>
 import axios from "axios";
-import { userInfoStore } from '@/stores/stores.js'
+import { userInfoStore } from '../stores/stores.js'
 axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
-const userInfo = userInfoStore()
 </script>
 
 <script>
 export default {
   data() {
     return {
-      alertType: "",
+      alertType: "error",
       operated: false,
       msgTitle: "",
       msgText: "",
@@ -28,6 +27,7 @@ export default {
         name: [
           (v) => !!v || "必须填写用户名",
           (v) => v.length <= 20 || "用户名长度最大为20",
+          (v) => v.length >= 2 || "用户名长度最小为2",
         ],
         pwd: [
           (v) => !!v || "必须填写密码",
@@ -39,13 +39,17 @@ export default {
   },
   methods: {
     login() {
+      const userInfo = userInfoStore()
       const data = { userName: this.userName, userPwd: this.userPwd };
       axios.post("/api/login", data).then((res) => {
-        console.log(res);
         this.msgTitle = res["data"]["type"];
         this.msgText = res["data"]["msg"];
         if (res["data"]["code"] == 0) {
           this.alertType = "success";
+          setTimeout(() => {
+            this.destroyWindow();
+          }, 1500);
+          userInfo.setStatus(this.userName, "", "点击头像切换账号", 1, this.userName.substring(0, 2));
         } else {
           this.alertType = "error";
         }
@@ -53,6 +57,7 @@ export default {
       });
     },
     regist() {
+      const userInfo = userInfoStore()
       const data = { userName: this.userName, userPwd: this.userPwd };
       axios.post("/api/regist", data).then((res) => {
         console.log(res);
@@ -60,7 +65,6 @@ export default {
         this.msgText = res["data"]["msg"];
         if (res["data"]["code"] == 0) {
           this.alertType = "success";
-          userInfo.setName(this.userName);
         } else {
           this.alertType = "error";
         }
@@ -72,11 +76,12 @@ export default {
     },
     refreshMsg() {
       this.operated = false;
+    },
+    destroyWindow() {
+      this.$emit("closeLogin");
     }
   },
-  mounted() {
-    this.operated = false;
-  }
+  emits: ['closeLogin'],
 };
 </script>
 
