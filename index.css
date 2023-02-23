@@ -12,3 +12,8 @@
   font-family: Qing Ke;
   src: url(./backend/font/QingKe.ttf);
 }
+
+@font-face {
+  font-family: SourceHanSans-Bold;
+  src: url(./backend/font/SourceHanSans-Bold.otf);
+}

@@ -16,7 +16,9 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
       </v-card>
     </v-col>
     <v-col cols="5">
-      <canvas id="main_canvas" width="512" height="512"></canvas>
+      <div class="d-flex" style="width: 702px; height: 702px; border-color: black; border: solid 1px;">
+        <canvas id="main_canvas" width="700" height="700"></canvas>
+      </div>
     </v-col>
     <v-col cols="4">
       <v-card class="mx-auto" max-width="600">
@@ -136,7 +138,8 @@ export default {
         "Default",
         "Quicksand",
         "Neon Sans",
-        "Qing Ke"
+        "Qing Ke",
+        "SourceHanSans-Bold"
       ],
       fillColorPropValid: false,
       fillColorDisplay: false,
