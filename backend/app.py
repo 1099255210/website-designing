@@ -1,6 +1,9 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request, send_file
 from pymongo import MongoClient
+
+import json
+import os
+import base64
 
 import mainneon
 
@@ -9,11 +12,18 @@ Please run this in port 2145
 '''
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
+app.config['PORT'] = 2145
 
 mongouri = 'mongodb://localhost:27017'
+base_path = './data'
 client = MongoClient(mongouri)
 db = client['test']
 collection = db['users']
+
+'''
+Routes
+'''
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -44,6 +54,45 @@ def gifgen():
   print(imgpath)
   return imgpath
 
+@app.route('/export', methods=['POST'])
+def export_canvas():
+  data = request.json
+
+  image_data = data['image']
+  json_data = data['json']
+
+  img_data = base64.b64decode(image_data.split(',')[1])
+  image_path = os.path.join(base_path, 'canvas.png')
+  with open(image_path, 'wb') as f:
+    f.write(img_data)
+
+  layout_path = os.path.join(base_path, 'layout.json')
+  with open(layout_path, 'w') as f:
+    f.write(json.dumps(json_data))
+
+  return 'Export successful'
+
+
+@app.route('/layout', methods=['GET'])
+def get_layout():
+  # 从文件中读取JSON布局数据并发送回前端
+  layout_path = os.path.join(base_path, 'layout.json')
+  with open(layout_path, 'r') as f:
+    layout_data = json.load(f)
+
+  return layout_data
+
+
+@app.route('/thumbnail', methods=['GET'])
+def get_thumbnail():
+  # 发送保存的缩略图文件回前端
+  thumbnail_path = os.path.join(base_path, 'thumbnail.png')
+  send_file(thumbnail_path, mimetype='image/png')
+
+
+'''
+Fuctions
+'''
 
 @app.route('/save', methods=['POST'])
 def save():
@@ -66,3 +115,7 @@ def excute_regist(form:dict):
     return {'code': -1, 'type': '用户名已被注册', 'msg': '请更换用户名'}
   collection.insert_one(form)
   return {'code': 0, 'type': '注册成功', 'msg': '欢迎您成为我们的一员！'}
+
+
+if __name__ == '__main__':
+  app.run(port=app.config['PORT'])
