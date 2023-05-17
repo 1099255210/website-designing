@@ -45,6 +45,12 @@ def gifgen():
   return imgpath
 
 
+@app.route('/save', methods=['POST'])
+def save():
+  res = request.json
+  print(res)
+
+
 def validate_login(form:dict):
   res = collection.find_one({'userName': form['userName']})
   if not res:

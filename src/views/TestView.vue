@@ -70,7 +70,11 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
             <div class="color-tool">
               选择边框颜色
               <span class="color-box" :style="'background-color: ' + shapeProp.outlineColor" @click="toggleOutlineColorPicker()"></span>
-              <v-card class="color-picker" v-if="outlineColorDisplay">
+              <v-card 
+                class="color-picker" 
+                v-if="outlineColorDisplay"
+                v-click-outside="toggleOutlineColorPicker"
+              >
                 <v-card-item>
                   <v-color-picker
                     v-model="shapeProp.outlineColor"
@@ -232,6 +236,7 @@ export default {
       this.shapeProp.outlineColor = obj.stroke
       this.shapeProp.outline = obj.strokeWidth
       this.shapeProp.angle = obj.angle
+      this.canvas.renderAll()
       console.log(obj.stroke, obj.strokeWidth, obj.angle)
     },
     updatePropSetting(e) {

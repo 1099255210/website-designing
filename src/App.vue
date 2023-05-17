@@ -21,8 +21,8 @@ const { userName, userEmail, subtitle, loginStatus, short } = storeToRefs(store)
             :subtitle="subtitle"
           >
             <template #prepend>
-              <v-avatar color="#7a7a7a" v-if="loginStatus">
-                <p style="color: aliceblue; cursor:pointer" class="text-caption" v-if="loginStatus" title="切换账号" @click="cancelLogin">{{ short }}</p>
+              <v-avatar color="#7a7a7a" style="cursor:pointer" v-if="loginStatus" title="切换账号" @click="cancelLogin">
+                <p style="color: aliceblue" class="text-caption" v-if="loginStatus">{{ short }}</p>
               </v-avatar>
               <v-avatar color="#7a7a7a" v-if="!loginStatus" @click="loginDialog=true" title="登录" style="cursor:pointer">
                 <p class="text-caption" v-if="loginStatus">{{ short }}</p>
@@ -74,6 +74,7 @@ export default {
         { icon: 'mdi-folder-image', title:'我的素材', router:'/myassets' },
         { icon: 'mdi-star', title:'我的收藏', router:'/myfavourite' },
         { icon: 'mdi-ab-testing', title:'测试', router:'/test' },
+        { icon: 'mdi-ab-testing', title:'测试2', router:'/test2'},
       ],
       loginDialog: false,
     }
