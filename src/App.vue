@@ -74,7 +74,7 @@ export default {
         { icon: 'mdi-folder-image', title:'我的素材', router:'/myassets' },
         { icon: 'mdi-star', title:'我的收藏', router:'/myfavourite' },
         { icon: 'mdi-ab-testing', title:'测试', router:'/test' },
-        { icon: 'mdi-ab-testing', title:'测试2', router:'/test2'},
+        { icon: 'mdi-ab-testing', title:'海报生成测试', router:'/mainposter'}
       ],
       loginDialog: false,
     }

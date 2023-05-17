@@ -10,7 +10,7 @@ import MyfavouriteView from '../views/MyfavouriteView.vue'
 import PostergenView from '../views/PostergenView.vue'
 import RegistView from '../views/RegistView.vue'
 import TestView from '../views/TestView.vue'
-import TestTwoView from '../views/TestTwoView.vue'
+import MainPoster from '../views/MainPoster.vue'
 
 
 const router = createRouter({
@@ -72,11 +72,10 @@ const router = createRouter({
       component: TestView
     },
     {
-      path: '/test2',
-      name: 'test2',
-      component: TestTwoView
-    },
-
+      path: '/mainposter',
+      name: 'mainposter',
+      component: MainPoster
+    }
   ]
 })
 
