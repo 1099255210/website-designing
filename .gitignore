@@ -29,3 +29,5 @@ coverage
 __pycache__
 __plugin__
 *.gif
+
+pl-experiment

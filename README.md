@@ -14,5 +14,5 @@ shell2:
 ```shell
 pip install flask
 cd backend
-flask run --port 2145
+python app.py
 ```
