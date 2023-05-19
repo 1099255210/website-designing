@@ -20,8 +20,8 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
     <v-col cols="3">
       <v-card class="mx-auto" max-width="344" variant="outlined">
         <v-card-item>
-          <div class="text-overline mb-1">Test</div>
-          <div class="text-h6 mb-1">测试功能</div>
+          <div class="text-overline mb-1">Modify</div>
+          <div class="text-h6 mb-1">精修设计</div>
         </v-card-item>
       </v-card>
     </v-col>
@@ -137,8 +137,6 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
             <v-btn variant="outlined" @click="addRect">矩形</v-btn>
             <v-btn variant="outlined" @click="addCircle">圆形</v-btn>
             <v-btn variant="outlined" @click="addTri">三角形</v-btn>
-          </v-card-actions>
-          <v-card-actions>
             <input id="imageInput" type="file" accept="image/jpeg, image/png, image/jpg" v-show="false">
             <v-btn variant="outlined" @click="uploadImage">上传图片</v-btn>
           </v-card-actions>
@@ -230,7 +228,6 @@ export default {
   watch: {
     shapeProp: {
       handler(newValue, oldValue) {
-        console.log(newValue, oldValue)
         var obj = this.canvas.getActiveObject()
         if (obj) {
           obj.fill = newValue.fillColor

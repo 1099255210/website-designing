@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col cols="10">
-      <img class="thumbnail-img" :src="thumbnailImage" @click="renderCanvasFromThumbnail" />
+      <img class="thumbnail-img" src=""/>
     </v-col>
     <v-col cols="2">
       留白
@@ -11,23 +11,23 @@
     <v-col cols="3">
       <v-card class="mx-auto" max-width="344" variant="outlined">
         <v-card-item>
-          <div class="text-overline mb-1">Test</div>
-          <div class="text-h6 mb-1">测试功能</div>
+          <div class="text-overline mb-1">Prepare</div>
+          <div class="text-h6 mb-1">准备工作</div>
         </v-card-item>
       </v-card>
     </v-col>
     <v-col cols="5">
-      <v-sheet width="300" class="mx-auto">
+      <v-sheet border rounded width="500" class="mx-auto pa-10">
         <v-form validate-on="submit" @submit.prevent="submit">
           <v-text-field
             v-model="title"
-            label="产品标题"
+            label="商品名称"
           ></v-text-field>
           <v-select
             v-model="select"
             :items="options"
             :rules="[v => !!v || 'Item is required']"
-            label="产品类型"
+            label="商品类型"
             required
           ></v-select>
           <v-file-input
@@ -40,7 +40,15 @@
             :src="preview"
             max-height="300px"
           ></v-img>
-          <v-btn type="submit" block class="mt-2"> Submit </v-btn>
+          <v-text-field
+            v-model="text1"
+            label="宣传语1"
+          ></v-text-field>
+          <v-text-field
+            v-model="text2"
+            label="宣传语2"
+          ></v-text-field>
+          <v-btn type="submit" block class="mt-2"> 提交 </v-btn>
         </v-form>
       </v-sheet>
     </v-col>

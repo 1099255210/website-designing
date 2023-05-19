@@ -67,7 +67,7 @@ export default {
   data() {
     return {
       items: [
-        { icon: 'mdi-account-group', title:'设计社区', router:'/community' },
+        { icon: 'mdi-account-group', title:'欢迎页', router:'/' },
         { icon: 'mdi-format-paint', title:'商品海报生成', router:'/postergen' },
         { icon: 'mdi-movie', title:'动态海报生成', router:'/gifgen' },
         { icon: 'mdi-lead-pencil', title:'我的设计', router:'/mydesign' },
