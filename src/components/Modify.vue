@@ -1,7 +1,9 @@
 <script setup>
 import axios from "axios";
+import hotkeys from "hotkeys-js";
 import { fabric } from 'fabric'
 import 'fabric-history';
+import initAligningGuidelines from '@/plugins/aligning'
 axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 </script>
 
@@ -75,24 +77,45 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
                 ></v-text-field>
               </template>
             </v-slider>
+            <v-card-actions>
+              <v-btn variant="outlined" @click="toggleFillColorPicker()">
+                选择填充颜色
+                <span class="color-box" :style="'background-color: ' + shapeProp.fillColor" ></span>
+              </v-btn>
 
-            <div class="color-tool">
-              选择边框颜色
-              <span class="color-box" :style="'background-color: ' + shapeProp.outlineColor" @click="toggleOutlineColorPicker()"></span>
-              <v-card class="color-picker" v-if="outlineColorDisplay" v-click-outside="hideOutlineColorPicker">
-                <v-card-item>
-                  <v-color-picker
-                    v-model="shapeProp.outlineColor"
-                    :mode="colorMode"
-                  >
-                  </v-color-picker>
-                  <v-divider></v-divider>
-                  <v-btn-toggle v-model="colorMode" v-if="outlineColorDisplay" mandatory>
-                    <v-btn v-for="(item, index) in constValue.colorModes" :key="index" :value="item">{{ item }}</v-btn>
-                  </v-btn-toggle>
-                </v-card-item>
-              </v-card>
-            </div>
+              <v-btn variant="outlined" @click="toggleOutlineColorPicker()">
+                选择描边颜色
+                <span class="color-box" :style="'background-color: ' + shapeProp.outlineColor" ></span>
+              </v-btn>
+            </v-card-actions>
+
+            <v-card class="color-picker" v-if="outlineColorDisplay" v-click-outside="hideOutlineColorPicker">
+              <v-card-item>
+                <v-color-picker
+                  v-model="shapeProp.outlineColor"
+                  :mode="colorMode"
+                >
+                </v-color-picker>
+                <v-divider></v-divider>
+                <v-btn-toggle v-model="colorMode" v-if="outlineColorDisplay" mandatory>
+                  <v-btn v-for="(item, index) in constValue.colorModes" :key="index" :value="item">{{ item }}</v-btn>
+                </v-btn-toggle>
+              </v-card-item>
+            </v-card>
+
+            <v-card class="color-picker" v-if="fillColorDisplay" v-click-outside="hideFillColorPicker">
+              <v-card-item>
+                <v-color-picker
+                  v-model="shapeProp.fillColor"
+                  :mode="colorMode"
+                >
+                </v-color-picker>
+                <v-divider></v-divider>
+                <v-btn-toggle v-model="colorMode" v-if="fillColorDisplay" mandatory>
+                  <v-btn v-for="(item, index) in constValue.colorModes" :key="index" :value="item">{{ item }}</v-btn>
+                </v-btn-toggle>
+              </v-card-item>
+            </v-card>
 
           </v-card-text>
           <v-divider></v-divider>
@@ -121,20 +144,12 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
           </v-card-actions>
           <v-divider></v-divider>
 
-          <v-card-title>项目</v-card-title>
-          <v-card-actions>
-            <input id="JSONInput" type="file" v-show="false">
-            <v-btn variant="outlined" @click="importJSON">导入项目</v-btn>
-            <v-btn variant="outlined" @click="downloadPNG">导出为PNG</v-btn>
-            <v-btn variant="outlined" @click="downloadJSON">导出为Json</v-btn>
-            <v-btn variant="outlined" @click="exportToTimeline">导出至时间线</v-btn>
-          </v-card-actions>
-
           <v-card-title>操作</v-card-title>
           <v-card-actions>
             <v-btn variant="outlined" @click="canvasUndo">撤销</v-btn>
             <v-btn variant="outlined" @click="deleteObj">删除</v-btn>
-            <v-btn variant="outlined" @click="showConfirmationDialog = true">清除画板</v-btn>
+            <v-btn variant="outlined" @click="cloneObj">克隆</v-btn>
+            <v-btn variant="outlined" @click="showConfirmationDialog=true">清除画板</v-btn>
             <v-dialog v-model="showConfirmationDialog" max-width="400">
               <v-card>
                 <v-card-title class="headline">确认清除画板</v-card-title>
@@ -147,7 +162,16 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
               </v-card>
             </v-dialog>
           </v-card-actions>
-          
+
+          <v-card-title>项目</v-card-title>
+          <v-card-actions>
+            <input id="JSONInput" type="file" v-show="false">
+            <v-btn variant="outlined" @click="importJSON">导入项目</v-btn>
+            <v-btn variant="outlined" @click="downloadPNG">导出为PNG</v-btn>
+            <v-btn variant="outlined" @click="downloadJSON">导出为Json</v-btn>
+            <v-btn variant="outlined" @click="exportToTimeline">导出至时间线</v-btn>
+          </v-card-actions>
+
         </v-card-item>
       </v-card>
     </v-col>
@@ -201,7 +225,6 @@ export default {
         colorModes: ["rgba", "hexa", "hex"],
       },
       showConfirmationDialog: false,
-
     };
   },
   watch: {
@@ -210,6 +233,7 @@ export default {
         console.log(newValue, oldValue)
         var obj = this.canvas.getActiveObject()
         if (obj) {
+          obj.fill = newValue.fillColor
           obj.stroke = newValue.outlineColor
           obj.strokeWidth = newValue.outline
           obj.angle = newValue.angle
@@ -232,6 +256,7 @@ export default {
         selectionDashArray: [4, 4],
         selectionLineWidth: 1,
       })
+      initAligningGuidelines(this.canvas)
       this.canvas.on('mouse:down', (e) => {
         if (e.target) {
           this.redefineBB(e.target)
@@ -264,13 +289,12 @@ export default {
     },
     updateProp(e) {
       var obj = this.canvas.getActiveObject()
+      this.shapeProp.fillColor = obj.fill
       this.shapeProp.outlineColor = obj.stroke
       this.shapeProp.outline = obj.strokeWidth
       this.shapeProp.angle = obj.angle
-      console.log(obj.stroke, obj.strokeWidth, obj.angle)
     },
     updatePropSetting(e) {
-      console.log(e)
       // Todo: change selection border
       if (e.selected.length == 1) {
         if (this.shapeType.includes(e.selected[0].type)) {
@@ -318,18 +342,24 @@ export default {
       }
     },
     initKeyboardEvent() {
-      document.onkeydown = (e) => {
-        
-        if (e.key == "Delete") {
-          this.deleteObj()
-        } else if (e.ctrlKey && e.key === 'z') {
-          this.canvas.undo()
-        } else if (e.ctrlKey && e.key === 's') {
-          console.log("save")
-          // Todo: save status
-        }
-        // Todo: redo
-      }
+      var clonedObj = ""
+
+      hotkeys("delete", (e)=> {
+        e.preventDefault()
+        this.deleteObj()
+      })
+      hotkeys("ctrl+z", (e)=> {
+        e.preventDefault()
+        this.canvas.undo()
+      })
+      hotkeys("ctrl+c", (e)=> {
+        e.preventDefault()
+        clonedObj = this.copyObj()
+      })
+      hotkeys("ctrl+v", (e)=> {
+        e.preventDefault()
+        this.pasteObj(clonedObj)
+      })
     },
 
     /**
@@ -363,6 +393,9 @@ export default {
     toggleOutlineColorPicker() {
       this.outlineColorDisplay = !this.outlineColorDisplay
     },
+    hideFillColorPicker() {
+      this.fillColorDisplay = false
+    },
     hideOutlineColorPicker() {
       this.outlineColorDisplay = false
     },
@@ -384,6 +417,23 @@ export default {
       var obj = this.canvas.getActiveObject()
       this.canvas.remove(obj)
     },
+    cloneObj() {
+      var obj = this.canvas.getActiveObject()
+      var clonedObj = fabric.util.object.clone(obj)
+      clonedObj.top += 10
+      clonedObj.left += 10
+      this.canvas.add(clonedObj)
+    },
+    copyObj() {
+      var obj = this.canvas.getActiveObject()
+      var clonedObj = fabric.util.object.clone(obj)
+      clonedObj.top += 10
+      clonedObj.left += 10
+      return clonedObj
+    },
+    pasteObj(clonedObj) {
+      this.canvas.add(clonedObj)
+    },
 
     /*
      * Add objects.
@@ -395,8 +445,8 @@ export default {
         width: 100,
         height: 100,
         stroke: 'black',
-        strokeWidth: 0,
-        fill: "black",
+        strokeWidth: 1,
+        fill: "white",
       });
       rect.set('objectCaching', false)
       this.canvas.add(rect);
@@ -407,8 +457,8 @@ export default {
         left: 50,
         radius: 100,
         stroke: 'black',
-        strokeWidth: 0,
-        fill: "black",
+        strokeWidth: 1,
+        fill: "white",
       });
       circle.set('objectCaching', false)
       this.canvas.add(circle);
@@ -420,8 +470,8 @@ export default {
         width: 100,
         height: 100,
         stroke: 'black',
-        strokeWidth: 0,
-        fill: "black",
+        strokeWidth: 1,
+        fill: "white",
       });
       tri.set('objectCaching', false)
       this.canvas.add(tri);
@@ -531,6 +581,7 @@ export default {
   display: inline-block;
 	width: 16px;
 	height: 16px;
+  margin-left: 10px;
 	background-color: #fff;
 	cursor: pointer;
 }
