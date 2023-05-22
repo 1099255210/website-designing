@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, jsonify
 from pymongo import MongoClient
 
 import json
@@ -54,6 +54,25 @@ def gifgen():
   print(imgpath)
   return imgpath
 
+@app.route('/exportToTimeline', methods=['POST'])
+def exportToTimeline():
+  # 获取POST请求中的参数
+  timestamp = request.json.get('ts')
+  imageData = request.json.get('img')
+  jsonData = request.json.get('json')
+  
+  imgPath = os.path.join(base_path, f"{timestamp}.png")
+  jsonPath = os.path.join(base_path, f"{timestamp}.json")
+
+  with open(imgPath, "wb") as f:
+    f.write(base64.b64decode(imageData.split(',')[1]))
+
+  with open(jsonPath, "w") as f:
+    json.dump(jsonData, f)
+
+  response = {'status': 'success'}
+  return jsonify(response)
+
 @app.route('/export', methods=['POST'])
 def export_canvas():
   data = request.json
@@ -91,14 +110,8 @@ def get_thumbnail():
 
 
 '''
-Fuctions
+Functions
 '''
-
-@app.route('/save', methods=['POST'])
-def save():
-  res = request.json
-  print(res)
-
 
 def validate_login(form:dict):
   res = collection.find_one({'userName': form['userName']})

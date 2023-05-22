@@ -55,8 +55,9 @@ export default {
 
 <template>
   <div>
-    <v-btn v-if="haveprev" variant="outlined" @click="moveToPrev()">返回</v-btn>
-    <v-btn v-if="havenext" variant="outlined" @click="moveToNext()">下一步</v-btn>
+    <v-btn v-if="haveprev" variant="outlined" @click="moveToPrev()" class="mx-3">返回</v-btn>
+    <v-btn v-if="havenext" variant="outlined" @click="moveToNext()" class="mx-3">下一步</v-btn>
+    <v-divider class="my-5"></v-divider>
     <div v-if="currentStep === 'a'">
       <Prepare />
     </div>

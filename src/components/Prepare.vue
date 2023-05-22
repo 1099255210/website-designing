@@ -30,14 +30,10 @@
             label="商品类型"
             required
           ></v-select>
-          <v-file-input
-            accept="image/*"
-            v-model="image"
-            label="上传图片"
-            @change="previewImage"
-          ></v-file-input>
+          <input id="image_upload" type="file" accept="image/jpeg, image/png, image/jpg" v-show="false">
+          <v-btn class="mb-4" variant="outlined" @click="uploadImage">上传图片</v-btn>
           <v-img
-            :src="preview"
+            :src="image"
             max-height="300px"
           ></v-img>
           <v-text-field
@@ -62,7 +58,7 @@ export default {
       title: '',
       options: ['食品', '电子产品', '化妆品'],
       select: null,
-      image: [],
+      image: null,
       preview: '',
       text1: '',
       text2: '',
@@ -73,17 +69,25 @@ export default {
     submit() {
       console.log('表单提交');
     },
-    previewImage(files) {
-      const file = files[0]
-      const reader = new FileReader()
-      reader.addEventListener('load', () => {
-        this.preview = reader.result
-      }, false)
-      console.log(this.preview)
-      if (file) {
-        reader.readAsDataURL(file)  
+    uploadImage() {
+      document.getElementById("image_upload").click();
+    },
+    previewImage() {
+      document.getElementById("image_upload").onchange = (e) => {
+        var reader = new FileReader()
+        reader.onload = (f) => {
+          var imgObj = new Image()
+          imgObj.src = f.target.result
+          imgObj.onload = () => {
+            this.image = imgObj
+          }
+        }
+        reader.readAsDataURL(e.target.files[0])
       }
     },
   },
+  mounted() {
+    this.previewImage()
+  }
 };
 </script>

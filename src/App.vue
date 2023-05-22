@@ -44,7 +44,7 @@ const { userName, userEmail, subtitle, loginStatus, short } = storeToRefs(store)
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <v-app-bar color="grey-lighten-4"></v-app-bar>
+      <!-- <v-app-bar color="grey-lighten-4"></v-app-bar> -->
       <v-main class="bg-grey-lighten-5">
         <v-container class="py-10 px-10" fluid>
           <RouterView/>

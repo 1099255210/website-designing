@@ -8,14 +8,35 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 </script>
 
 <template>
-  <v-row>
-    <v-col cols="10">
-      <img class="thumbnail-img" :src="thumbnailImage" @click="renderCanvasFromThumbnail" />
-    </v-col>
-    <v-col cols="2">
-      留白
-    </v-col>
+
+  <v-row
+    v-if="thumbnailList && thumbnailList.length"
+    class="rounded-lg overflow-x-auto"
+    style="background-color: #f5f5f5; height: 250px; width: 100%;"
+    no-gutters
+    >
+
+    <v-img 
+      v-for="thumbnail in thumbnailList"
+      :key="thumbnail.ts"
+      :src="thumbnail.img"
+      height="200" 
+      class="my-auto elevation-10"
+      >
+    </v-img>
+
   </v-row>
+  <v-row
+    v-else
+    style="background-color: #f5f5f5; height: 250px; width: 100%;"
+    no-gutters
+    class="d-flex justify-center align-center rounded-lg"
+    >
+
+    <h1 class="text-center" style="color: darkgray;">时间线上无草稿</h1>
+
+  </v-row>
+
   <v-row>
     <v-col cols="3">
       <v-card class="mx-auto" max-width="344" variant="outlined">
@@ -183,6 +204,7 @@ export default {
       message: "",
       imageFile: "",
       thumbnailImage: '',
+      thumbnailList: [],
       colorMode: "rgba",
       fontFamilySelected: "Default",
       fontFamilyList: [
@@ -497,6 +519,8 @@ export default {
      * Dump and import canvas.
      */
     downloadPNG() {
+      this.canvas.renderAll()
+      console.log(this.canvas.getContext())
       var base64 = this.canvas.toDataURL({
         format: "png",
         enableRetinaScaling: false,
@@ -522,16 +546,20 @@ export default {
       document.getElementById("JSONInput").click();
     },
     exportToTimeline() {
+      const timestamp = new Date().getTime();
+      console.log(timestamp);
       const imageData = this.canvas.toDataURL({ format: 'png' });
       const jsonData = JSON.stringify(this.canvas.toJSON());
+
       this.thumbnailImage = imageData;
 
-      // 创建下载链接并保存JSON文件
-      const jsonLink = document.createElement('a');
-      const blob = new Blob([jsonData], { type: 'application/json' });
-      jsonLink.href = URL.createObjectURL(blob);
-      jsonLink.download = 'canvas.json';
-      jsonLink.click();
+      axios.post('/api/exportToTimeline', {'ts': timestamp, 'img': imageData, 'json': jsonData})
+        .then(response => {
+          this.thumbnailList.push({'ts': timestamp, 'img': imageData})
+        })
+        .catch(error => {
+          console.error(error);
+        });
     },
     renderCanvasFromThumbnail() {
       fetch('canvas.json')
@@ -545,7 +573,7 @@ export default {
     },
     renderCanvas() {
       // 发送请求获取JSON布局数据
-      axios.get('/layout')
+      axios.get('/api/layout')
         .then(response => {
           const layoutData = response.data;
           this.canvas.loadFromJSON(layoutData)
@@ -555,7 +583,7 @@ export default {
         });
     },
     getThumbnail() {
-      axios.get('/thumbnail')
+      axios.get('/api/thumbnail')
         .then(response => {
           this.thumbnail = response.data;
         })
@@ -563,6 +591,7 @@ export default {
           console.error(error);
         });
     },
+
   },
   mounted() {
     this.initCanvas()
@@ -592,8 +621,4 @@ export default {
   z-index: 9;
 }
 
-.thumbnail-img {
-  cursor: pointer;
-  height: 200px; /* 设置图片高度 */
-}
 </style>

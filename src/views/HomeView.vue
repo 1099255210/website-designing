@@ -24,10 +24,10 @@ import Welcome from '../components/Welcome.vue'
               </v-btn>
             </template>
 
-            <v-card class="text-center mx-auto" color="white">
-              <v-card-text class="text-h1" color="#7a7a7a">
+            <v-card class="d-flex justify-center align-center text-center mx-auto" color="white">
+              <p class="text-h1" color="#7a7a7a">
                 电子商务海报智能设计平台
-              </v-card-text>
+              </p>
               <v-card-actions class="justify-center">
                 <v-btn
                   icon
@@ -58,7 +58,7 @@ import Welcome from '../components/Welcome.vue'
 export default {
   data() {
     return {
-      dialog: false,
+      dialog: true,
     };
   }
 }
