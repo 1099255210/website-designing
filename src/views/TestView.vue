@@ -13,9 +13,29 @@ export default {
     return {
       currentStep: 'a',
       stepList: ['a', 'b', 'c'],
+      productInfo: {
+        productName: "",
+        productType: "",
+        productImg: "",
+        promote: []
+      },
+      layoutInfo: {
+        bb: [],
+        image_pos: [],
+      }
     };
   },
   methods: {
+    dealinfo(data) {
+      this.productInfo = data
+      this.moveToNext()
+      console.log(this.productInfo)
+    },
+    setlayout(data) {
+      this.layoutInfo = data
+      this.moveToNext()
+      console.log(this.layoutInfo)
+    },
     hasStep(step, direction) {
       var index = this.stepList.indexOf(step)
       if (direction === 'next' && index + 1 < this.stepList.length) {
@@ -59,13 +79,13 @@ export default {
     <v-btn v-if="havenext" variant="outlined" @click="moveToNext()" class="mx-3">下一步</v-btn>
     <v-divider class="my-5"></v-divider>
     <div v-if="currentStep === 'a'">
-      <Prepare />
+      <Prepare @sendinfo="dealinfo"></Prepare>
     </div>
     <div v-else-if="currentStep === 'b'">
-      <Recommend />
+      <Recommend :childMsg="productInfo" @sendlayout="setlayout" />
     </div>
     <div v-else-if="currentStep === 'c'">
-      <Modify />
+      <Modify :preset="layoutInfo" />
     </div>
   </div>
 </template>

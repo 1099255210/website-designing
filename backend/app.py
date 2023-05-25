@@ -1,5 +1,9 @@
 from flask import Flask, request, send_file, jsonify
 from pymongo import MongoClient
+import plun.posterlayout.inference as pl
+import plun.posterlayout.u2net.inference as u2
+from PIL import Image
+from io import BytesIO
 
 import json
 import os
@@ -20,9 +24,14 @@ base_path = './data'
 client = MongoClient(mongouri)
 db = client['test']
 collection = db['users']
+canvas_width = 513
+canvas_height = 750
+
+salnet = u2.initialize_model()
+layoutnet = pl.initialize_model()
 
 '''
-Routes
+Routers
 '''
 
 @app.route('/login', methods=['POST'])
@@ -107,13 +116,47 @@ def get_thumbnail():
   # 发送保存的缩略图文件回前端
   thumbnail_path = os.path.join(base_path, 'thumbnail.png')
   send_file(thumbnail_path, mimetype='image/png')
+ 
+ 
+@app.route('/inference', methods=['POST'])
+def get_inference():
+  image_data = request.json.get('productImg')
+  image_bytes = base64.b64decode(image_data.split(',')[1])
+  image = Image.open(BytesIO(image_bytes))
+  result = put_image(image)
+  
+  image_path = result['image_path']
+  position_xywh = result['position']
+  
+  out_dir = 'data'
+  
+  ret_path = u2.get_single_saliency(salnet, image_path, out_dir)
+  
+  print(ret_path)
+  
+  result = pl.get_single_layout(layoutnet, image_path, ret_path)
+  
+  cls = result['cls']
+  box = result['box']
+  
+  response = {
+    'data': {
+      'image_pos': position_xywh,
+      'bb': [{
+        'cls': c,
+        'box': b,
+      } for c, b in zip(cls, box)],
+    }
+  }
+  print(response)
+  return jsonify(response)
 
 
 '''
 Functions
 '''
 
-def validate_login(form:dict):
+def validate_login(form:dict) -> dict:
   res = collection.find_one({'userName': form['userName']})
   if not res:
     return {'code': -1, 'type': '该用户不存在', 'msg': '请检查用户名输入是否正确或注册新账号'}
@@ -122,13 +165,31 @@ def validate_login(form:dict):
   return {'code': 0, 'type': '登录成功！', 'msg': '欢迎来到海报设计平台！'}
   
 
-def excute_regist(form:dict):
+def excute_regist(form:dict) -> dict:
   res = collection.find_one({'userName': form['userName']})
   if res:
     return {'code': -1, 'type': '用户名已被注册', 'msg': '请更换用户名'}
   collection.insert_one(form)
   return {'code': 0, 'type': '注册成功', 'msg': '欢迎您成为我们的一员！'}
 
+
+def put_image(img: Image.Image, bg="", layout_size=(canvas_width, canvas_height), mode='bottom') -> dict:
+  width, height = img.size
+  scale_ratio = min(layout_size[0] / width, layout_size[1] / height)
+  new_size = (int(width * scale_ratio), int(height * scale_ratio))
+
+  img = img.resize(new_size)
+
+  x = int((layout_size[0] - new_size[0]) / 2)
+  y = layout_size[1] - new_size[1]
+
+  if not bg:
+    canvas = Image.new('RGB', (layout_size[0], layout_size[1]), color=(255, 255, 255))
+    canvas.paste(img, (x, y))
+    image_path = os.path.join(base_path, f'{mode}.png')
+    canvas.save(image_path)
+
+  return { 'image_path': image_path, 'position': [x, y, new_size[0], new_size[1]] }
 
 if __name__ == '__main__':
   app.run(port=app.config['PORT'])

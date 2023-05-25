@@ -143,7 +143,7 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
           <v-card-title>文字属性</v-card-title>
           <v-card-actions>
-            <v-btn variant="outlined" @click="addTextBox">文字</v-btn>
+            <v-btn variant="outlined" @click="addTextBoxClick">文字</v-btn>
             <v-select
               v-model="fontFamilySelected"
               :items="fontFamilyList"
@@ -155,9 +155,9 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
           <v-card-title>添加元素</v-card-title>
           <v-card-actions>
-            <v-btn variant="outlined" @click="addRect">矩形</v-btn>
-            <v-btn variant="outlined" @click="addCircle">圆形</v-btn>
-            <v-btn variant="outlined" @click="addTri">三角形</v-btn>
+            <v-btn variant="outlined" @click="addRectClick">矩形</v-btn>
+            <v-btn variant="outlined" @click="addCircleClick">圆形</v-btn>
+            <v-btn variant="outlined" @click="addTriClick">三角形</v-btn>
             <input id="imageInput" type="file" accept="image/jpeg, image/png, image/jpg" v-show="false">
             <v-btn variant="outlined" @click="uploadImage">上传图片</v-btn>
           </v-card-actions>
@@ -169,6 +169,7 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
             <v-btn variant="outlined" @click="deleteObj">删除</v-btn>
             <v-btn variant="outlined" @click="cloneObj">克隆</v-btn>
             <v-btn variant="outlined" @click="showConfirmationDialog=true">清除画板</v-btn>
+            <v-btn variant="outlined" @click="addRect({width: 200})">测试</v-btn>
             <v-dialog v-model="showConfirmationDialog" max-width="400">
               <v-card>
                 <v-card-title class="headline">确认清除画板</v-card-title>
@@ -206,9 +207,9 @@ export default {
       thumbnailImage: '',
       thumbnailList: [],
       colorMode: "rgba",
-      fontFamilySelected: "Default",
+      fontFamilySelected: "Times New Roman",
       fontFamilyList: [
-        "Default",
+        "Times New Roman",
         "Quicksand",
         "Neon Sans",
         "Qing Ke",
@@ -245,7 +246,14 @@ export default {
         colorModes: ["rgba", "hexa", "hex"],
       },
       showConfirmationDialog: false,
+      presetCopy: this.preset,
     };
+  },
+  props: {
+    preset: {
+      bb: [],
+      image_pos: [],
+    }
   },
   watch: {
     shapeProp: {
@@ -294,6 +302,9 @@ export default {
       this.canvas.on('object:rotating', (e) => {
         this.updateProp(e)
       })
+      if (this.presetCopy.image_pos.length != 0) {
+        initLayout()
+      }
     },
     redefineBB(obj) {
       obj.set({
@@ -330,6 +341,9 @@ export default {
           this.textPropValid = false
         }
       } 
+    },
+    initLayout() {
+
     },
     initImageUploader() {
       document.getElementById("imageInput").onchange = (e) => {
@@ -457,60 +471,118 @@ export default {
     /*
      * Add objects.
      */
-    addRect() {
-      var rect = new fabric.Rect({
-        top: 50,
-        left: 50,
-        width: 100,
-        height: 100,
-        stroke: 'black',
-        strokeWidth: 1,
-        fill: "white",
+    addRect(options = {}) {
+      const {
+        top = 50,
+        left = 50,
+        width = 100,
+        height = 100,
+        stroke = 'black',
+        strokeWidth = 1,
+        fill = "white",
+        objectCaching = false
+      } = options;
+      
+      const rect = new fabric.Rect({
+        top: top,
+        left: left,
+        width: width,
+        height: height,
+        stroke: stroke,
+        strokeWidth: strokeWidth,
+        fill: fill,
       });
-      rect.set('objectCaching', false)
+      console.log(rect)
+      rect.set('objectCaching', objectCaching);
       this.canvas.add(rect);
     },
-    addCircle() {
-      var circle = new fabric.Circle({
-        top: 50,
-        left: 50,
-        radius: 100,
-        stroke: 'black',
-        strokeWidth: 1,
-        fill: "white",
+    
+    addCircle(options = {}) {
+      const {
+        top = 50,
+        left = 50,
+        radius = 100,
+        stroke = 'black',
+        strokeWidth = 1,
+        fill = "white",
+        objectCaching = false
+      } = options;
+
+      const circle = new fabric.Circle({
+        top,
+        left,
+        radius,
+        stroke,
+        strokeWidth,
+        fill
       });
-      circle.set('objectCaching', false)
+      circle.set('objectCaching', objectCaching);
       this.canvas.add(circle);
     },
-    addTri() {
-      var tri = new fabric.Triangle({
-        top: 50,
-        left: 50,
-        width: 100,
-        height: 100,
-        stroke: 'black',
-        strokeWidth: 1,
-        fill: "white",
+
+    addTri(options = {}) {
+      const {
+        top = 50,
+        left = 50,
+        width = 100,
+        height = 100,
+        stroke = 'black',
+        strokeWidth = 1,
+        fill = "white",
+        objectCaching = false
+      } = options;
+
+      const tri = new fabric.Triangle({
+        top,
+        left,
+        width,
+        height,
+        stroke,
+        strokeWidth,
+        fill
       });
-      tri.set('objectCaching', false)
+      tri.set('objectCaching', objectCaching);
       this.canvas.add(tri);
     },
-    addTextBox() {
+
+    addTextBox(options = {}) {
       if (this.fontFamilySelected == "Default") {
         this.fontFamily = "Times New Roman"
       } else {
         this.fontFamily = this.fontFamilySelected
       }
-      var tb = new fabric.Textbox("输入文字 Text", {
-        left: 50,
-        top: 50,
-        fontSize: 50,
-        fontFamily: this.fontFamily,
-      });
-      tb.set('objectCaching', false)
-      this.canvas.add(tb).renderAll();
 
+      const {
+        left = 50,
+        top = 50,
+        fontSize = 50,
+        fontFamily = this.fontFamily,
+        objectCaching = false,
+        text = "输入文字 Text"
+      } = options;
+
+      const tb = new fabric.Textbox(text, {
+        left,
+        top,
+        fontSize,
+        fontFamily
+      });
+      tb.set('objectCaching', objectCaching);
+      this.canvas.add(tb)
     },
+    addRectClick() {
+      this.addRect()
+    },
+    addCircleClick() {
+      this.addCircle()
+    },
+    addTriClick() {
+      this.addTri()
+    },
+    addTextBoxClick() {
+      this.addTextBox()
+    },
+
     uploadImage() {
       document.getElementById("imageInput").click();
     },
