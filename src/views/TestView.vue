@@ -19,10 +19,7 @@ export default {
         productImg: "",
         promote: []
       },
-      layoutInfo: {
-        bb: [],
-        image_pos: [],
-      }
+      layoutInfo: {}
     };
   },
   methods: {
@@ -33,6 +30,7 @@ export default {
     },
     setlayout(data) {
       this.layoutInfo = data
+      this.layoutInfo['data']['img'] = this.productInfo.productImg
       this.moveToNext()
       console.log(this.layoutInfo)
     },

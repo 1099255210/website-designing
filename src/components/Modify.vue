@@ -183,6 +183,14 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
             </v-dialog>
           </v-card-actions>
 
+          <v-card-title>图层</v-card-title>
+          <v-card-actions>
+            <v-btn variant="outlined" @click="bringToFront">置于顶层</v-btn>
+            <v-btn variant="outlined" @click="sendToBack">置于底层</v-btn>
+            <v-btn variant="outlined" @click="bringForward">上移一层</v-btn>
+            <v-btn variant="outlined" @click="sendBackwards">下移一层</v-btn>
+          </v-card-actions>
+
           <v-card-title>项目</v-card-title>
           <v-card-actions>
             <input id="JSONInput" type="file" v-show="false">
@@ -250,10 +258,7 @@ export default {
     };
   },
   props: {
-    preset: {
-      bb: [],
-      image_pos: [],
-    }
+    preset: {}
   },
   watch: {
     shapeProp: {
@@ -302,9 +307,9 @@ export default {
       this.canvas.on('object:rotating', (e) => {
         this.updateProp(e)
       })
-      if (this.presetCopy.image_pos.length != 0) {
-        initLayout()
-      }
+      // if (this.presetCopy.image_pos.length != 0) {
+      //   initLayout()
+      // }
     },
     redefineBB(obj) {
       obj.set({
@@ -343,7 +348,27 @@ export default {
       } 
     },
     initLayout() {
-
+      if (this.presetCopy['data']['draw_obj'] != null) {
+        var arr = this.presetCopy['data']['draw_obj']
+        var layout = arr[0]
+        var obj = 0
+        for (obj in layout) {
+          if (layout[obj]['obj'] === 'name') {
+            console.log(layout[obj]['option'])
+            this.addTextBox(layout[obj]['option'])
+          }
+          else if (layout[obj]['obj'] === 'promote') {
+            console.log(layout[obj]['option'])
+            this.addTextBox(layout[obj]['option'])
+          }
+          else if (layout[obj]['obj'] === 'img') {
+            console.log(layout[obj]['option'])
+            var imgObj = new Image()
+            imgObj.src = this.presetCopy['data']['img']
+            this.addImage(imgObj, layout[obj]['option'])
+          }
+        }
+      }
     },
     initImageUploader() {
       document.getElementById("imageInput").onchange = (e) => {
@@ -352,14 +377,15 @@ export default {
           var imgObj = new Image()
           imgObj.src = f.target.result
           imgObj.onload = () => {
-            var image = new fabric.Image(imgObj)
-            image.set({
-              angle: 0,
-              weight: imgObj.width,
-              height: imgObj.height,
-            });
-            this.redefineBB(image)
-            this.canvas.centerObject(image).add(image).renderAll()
+            this.addImage(imgObj, { top:10, left:10, width:imgObj.width, height:imgObj.height })
+            // var image = new fabric.Image(imgObj)
+            // image.set({
+            //   angle: 0,
+            //   width: imgObj.width,
+            //   height: imgObj.height,
+            // });
+            // this.redefineBB(image)
+            // this.canvas.centerObject(image).add(image).renderAll()
           }
         }
         reader.readAsDataURL(e.target.files[0])
@@ -469,6 +495,26 @@ export default {
     },
 
     /*
+     * Layer Adjustments.
+     */
+    bringToFront() {
+      var obj= this.canvas.getActiveObject()
+      obj.bringToFront()
+    },
+    sendToBack() {
+      var obj= this.canvas.getActiveObject()
+      obj.sendToBack()
+    },
+    bringForward() {
+      var obj= this.canvas.getActiveObject()
+      obj.bringForward()
+    },
+    sendBackwards() {
+      var obj= this.canvas.getActiveObject()
+      obj.sendBackwards()
+    },
+
+    /*
      * Add objects.
      */
     addRect(options = {}) {
@@ -479,8 +525,7 @@ export default {
         height = 100,
         stroke = 'black',
         strokeWidth = 1,
-        fill = "white",
-        objectCaching = false
+        fill = "white"
       } = options;
       
       const rect = new fabric.Rect({
@@ -492,8 +537,7 @@ export default {
         strokeWidth: strokeWidth,
         fill: fill,
       });
-      console.log(rect)
-      rect.set('objectCaching', objectCaching);
+      rect.set('objectCaching', false);
       this.canvas.add(rect);
     },
     
@@ -504,8 +548,7 @@ export default {
         radius = 100,
         stroke = 'black',
         strokeWidth = 1,
-        fill = "white",
-        objectCaching = false
+        fill = "white"
       } = options;
 
       const circle = new fabric.Circle({
@@ -516,7 +559,7 @@ export default {
         strokeWidth,
         fill
       });
-      circle.set('objectCaching', objectCaching);
+      circle.set('objectCaching', false);
       this.canvas.add(circle);
     },
 
@@ -528,8 +571,7 @@ export default {
         height = 100,
         stroke = 'black',
         strokeWidth = 1,
-        fill = "white",
-        objectCaching = false
+        fill = "white"
       } = options;
 
       const tri = new fabric.Triangle({
@@ -541,7 +583,7 @@ export default {
         strokeWidth,
         fill
       });
-      tri.set('objectCaching', objectCaching);
+      tri.set('objectCaching', false);
       this.canvas.add(tri);
     },
 
@@ -553,22 +595,55 @@ export default {
       }
 
       const {
-        left = 50,
-        top = 50,
+        left = 150,
+        top = 150,
         fontSize = 50,
         fontFamily = this.fontFamily,
-        objectCaching = false,
         text = "输入文字 Text"
       } = options;
 
       const tb = new fabric.Textbox(text, {
-        left,
-        top,
         fontSize,
         fontFamily
       });
-      tb.set('objectCaching', objectCaching);
+      var point = new fabric.Point(left, top)
+      tb.setPositionByOrigin(point, 'center', 'center')
+      tb.set('objectCaching', false);
       this.canvas.add(tb)
+    },
+    addImage(img, options = {}) {
+      const {
+        left = 50,
+        top = 50,
+        width = 0,
+        height = 0,
+      } = options;
+      var fabricImg = new fabric.Image(img)
+      if (width === 0 && height === 0) {  
+        fabricImg.set({
+          width: img.width,
+          height: img.height,
+          angle: 0,
+          left: left,
+          top: top,
+        });
+      }
+      else {
+        var scaleX = width / img.width
+        var scaleY = height / img.height
+        fabricImg.set({
+          angle: 0,
+          left: left,
+          top: top,
+          width: img.width,
+          height: img.height,
+          scaleX: scaleX,
+          scaleY: scaleY,
+        });
+      }
+      fabricImg.set('objectCaching', false);
+      console.log(fabricImg)
+      this.canvas.add(fabricImg)
     },
     addRectClick() {
       this.addRect()
@@ -670,6 +745,7 @@ export default {
     this.initImageUploader()
     this.initJSONUploader()
     this.initKeyboardEvent()
+    this.initLayout()
   },
 };
 </script>
