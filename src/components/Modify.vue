@@ -160,6 +160,8 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
             <v-btn variant="outlined" @click="addTriClick">三角形</v-btn>
             <input id="imageInput" type="file" accept="image/jpeg, image/png, image/jpg" v-show="false">
             <v-btn variant="outlined" @click="uploadImage">上传图片</v-btn>
+            <input id="bgInput" type="file" accept="image/jpeg, image/png, image/jpg" v-show="false">
+            <v-btn variant="outlined" @click="uploadBg">上传背景</v-btn>
           </v-card-actions>
           <v-divider></v-divider>
 
@@ -255,6 +257,7 @@ export default {
       },
       showConfirmationDialog: false,
       presetCopy: this.preset,
+      colorHint: false,
     };
   },
   props: {
@@ -328,6 +331,10 @@ export default {
       this.shapeProp.outlineColor = obj.stroke
       this.shapeProp.outline = obj.strokeWidth
       this.shapeProp.angle = obj.angle
+
+      // if (this.colorDetecter(obj.left, obj.top, obj.width, obj.height, obj.fill)) {
+      //   this.colorHint = true
+      // }
     },
     updatePropSetting(e) {
       // Todo: change selection border
@@ -391,6 +398,30 @@ export default {
         reader.readAsDataURL(e.target.files[0])
       }
     },
+    initBgUploader() {
+      document.getElementById("bgInput").onchange = (e) => {
+        var reader = new FileReader()
+        reader.onload = (f) => {
+          var imgObj = new Image()
+          imgObj.src = f.target.result
+          imgObj.onload = () => {
+            var image = new fabric.Image(imgObj)
+            this.canvas.setBackgroundImage(image, this.canvas.renderAll.bind(this.canvas), {
+              top: 0,
+              left: 0,
+            })
+            // image.set({
+            //   angle: 0,
+            //   width: imgObj.width,
+            //   height: imgObj.height,
+            // });
+            // this.redefineBB(image)
+            // this.canvas.centerObject(image).add(image).renderAll()
+          }
+        }
+        reader.readAsDataURL(e.target.files[0])
+      }
+    },
     initJSONUploader() {
       document.getElementById("JSONInput").onchange = (e) => {
         var reader = new FileReader()
@@ -419,6 +450,25 @@ export default {
         e.preventDefault()
         this.pasteObj(clonedObj)
       })
+    },
+    colorDetecter(x, y, w, h, color) {
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      const rgb = [r, g, b]
+      var tl_color = this.getColorByPosition(x, y)
+      var tr_color = this.getColorByPosition(x + w, y)
+      var bl_color = this.getColorByPosition(x, y + h)
+      var br_color = this.getColorByPosition(x + w, y + h)
+      if (
+        this.getColorClose(rgb, tl_color) ||
+        this.getColorClose(rgb, tr_color) ||
+        this.getColorClose(rgb, bl_color) ||
+        this.getColorClose(rgb, br_color)
+      ) {
+        return true
+      }
+      return false
     },
 
     /**
@@ -642,6 +692,7 @@ export default {
         });
       }
       fabricImg.set('objectCaching', false);
+      fabricImg.sendToBack()
       console.log(fabricImg)
       this.canvas.add(fabricImg)
     },
@@ -660,6 +711,9 @@ export default {
 
     uploadImage() {
       document.getElementById("imageInput").click();
+    },
+    uploadBg() {
+      document.getElementById("bgInput").click();
     },
 
     /*
@@ -738,6 +792,24 @@ export default {
           console.error(error);
         });
     },
+    getColorByPosition(x, y) {
+      const context = this.canvas.getContext('2d');
+      const imageData = context.getImageData(x, y, 1, 1);
+      const color = [imageData.data[0], imageData.data[1], imageData.data[2]];
+
+      return color
+    },
+    getColorClose(c1, c2) {
+      const colorDistance = Math.sqrt(
+        Math.pow(c1[0] - c2[0], 2) +
+        Math.pow(c1[1] - c2[1], 2) +
+        Math.pow(c1[2] - c2[2], 2)
+      )
+      if (colorDistance < 50) {
+        return true
+      }
+      return false
+    }
 
   },
   mounted() {
