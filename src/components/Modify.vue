@@ -148,7 +148,7 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
           <v-card-title>文字属性</v-card-title>
           <v-card-actions>
-            <v-btn variant="outlined" @click="addTextBox">文字</v-btn>
+            <v-btn variant="outlined" @click="addTextBoxClick">文字</v-btn>
             <v-select
               v-model="fontFamilySelected"
               :items="fontFamilyList"
@@ -160,11 +160,13 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 
           <v-card-title>添加元素</v-card-title>
           <v-card-actions>
-            <v-btn variant="outlined" @click="addRect">矩形</v-btn>
-            <v-btn variant="outlined" @click="addCircle">圆形</v-btn>
-            <v-btn variant="outlined" @click="addTri">三角形</v-btn>
+            <v-btn variant="outlined" @click="addRectClick">矩形</v-btn>
+            <v-btn variant="outlined" @click="addCircleClick">圆形</v-btn>
+            <v-btn variant="outlined" @click="addTriClick">三角形</v-btn>
             <input id="imageInput" type="file" accept="image/jpeg, image/png, image/jpg" v-show="false">
             <v-btn variant="outlined" @click="uploadImage">上传图片</v-btn>
+            <input id="bgInput" type="file" accept="image/jpeg, image/png, image/jpg" v-show="false">
+            <v-btn variant="outlined" @click="uploadBg">上传背景</v-btn>
           </v-card-actions>
           <v-divider></v-divider>
 
@@ -174,6 +176,7 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
             <v-btn variant="outlined" @click="deleteObj">删除</v-btn>
             <v-btn variant="outlined" @click="cloneObj">克隆</v-btn>
             <v-btn variant="outlined" @click="showConfirmationDialog=true">清除画板</v-btn>
+            <v-btn variant="outlined" @click="addRect({width: 200})">测试</v-btn>
             <v-dialog v-model="showConfirmationDialog" max-width="400">
               <v-card>
                 <v-card-title class="headline">确认清除画板</v-card-title>
@@ -185,6 +188,14 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
                 </v-card-actions>
               </v-card>
             </v-dialog>
+          </v-card-actions>
+
+          <v-card-title>图层</v-card-title>
+          <v-card-actions>
+            <v-btn variant="outlined" @click="bringToFront">置于顶层</v-btn>
+            <v-btn variant="outlined" @click="sendToBack">置于底层</v-btn>
+            <v-btn variant="outlined" @click="bringForward">上移一层</v-btn>
+            <v-btn variant="outlined" @click="sendBackwards">下移一层</v-btn>
           </v-card-actions>
 
           <v-card-title>项目</v-card-title>
@@ -211,9 +222,9 @@ export default {
       thumbnailImage: '',
       thumbnailList: [],
       colorMode: "rgba",
-      fontFamilySelected: "Default",
+      fontFamilySelected: "Times New Roman",
       fontFamilyList: [
-        "Default",
+        "Times New Roman",
         "Quicksand",
         "Neon Sans",
         "Qing Ke",
@@ -259,9 +270,12 @@ export default {
         text_2: "",
       },
       showConfirmationDialog: false,
-      icons: ["mdi-delete", "mdi-rewind"],
-      transparent: 'rgba(255, 255, 255, 0)',
+      presetCopy: this.preset,
+      colorHint: false,
     };
+  },
+  props: {
+    preset: {}
   },
   watch: {
     shapeProp: {
@@ -325,6 +339,9 @@ export default {
       this.canvas.on('object:rotating', (e) => {
         this.updateProp(e)
       })
+      // if (this.presetCopy.image_pos.length != 0) {
+      //   initLayout()
+      // }
     },
     redefineBB(obj) {
       obj.set({
@@ -351,6 +368,10 @@ export default {
         this.shapeProp.outlineColor = obj.stroke
         this.shapeProp.outline = obj.strokeWidth
         this.shapeProp.angle = obj.angle
+
+      // if (this.colorDetecter(obj.left, obj.top, obj.width, obj.height, obj.fill)) {
+      //   this.colorHint = true
+      // }
       }
 
     },
@@ -371,6 +392,29 @@ export default {
         }
       } 
     },
+    initLayout() {
+      if (this.presetCopy['data']['draw_obj'] != null) {
+        var arr = this.presetCopy['data']['draw_obj']
+        var layout = arr[0]
+        var obj = 0
+        for (obj in layout) {
+          if (layout[obj]['obj'] === 'name') {
+            console.log(layout[obj]['option'])
+            this.addTextBox(layout[obj]['option'])
+          }
+          else if (layout[obj]['obj'] === 'promote') {
+            console.log(layout[obj]['option'])
+            this.addTextBox(layout[obj]['option'])
+          }
+          else if (layout[obj]['obj'] === 'img') {
+            console.log(layout[obj]['option'])
+            var imgObj = new Image()
+            imgObj.src = this.presetCopy['data']['img']
+            this.addImage(imgObj, layout[obj]['option'])
+          }
+        }
+      }
+    },
     initImageUploader() {
       document.getElementById("imageInput").onchange = (e) => {
         var reader = new FileReader()
@@ -378,14 +422,39 @@ export default {
           var imgObj = new Image()
           imgObj.src = f.target.result
           imgObj.onload = () => {
+            this.addImage(imgObj, { top:10, left:10, width:imgObj.width, height:imgObj.height })
+            // var image = new fabric.Image(imgObj)
+            // image.set({
+            //   angle: 0,
+            //   width: imgObj.width,
+            //   height: imgObj.height,
+            // });
+            // this.redefineBB(image)
+            // this.canvas.centerObject(image).add(image).renderAll()
+          }
+        }
+        reader.readAsDataURL(e.target.files[0])
+      }
+    },
+    initBgUploader() {
+      document.getElementById("bgInput").onchange = (e) => {
+        var reader = new FileReader()
+        reader.onload = (f) => {
+          var imgObj = new Image()
+          imgObj.src = f.target.result
+          imgObj.onload = () => {
             var image = new fabric.Image(imgObj)
-            image.set({
-              angle: 0,
-              weight: imgObj.width,
-              height: imgObj.height,
-            });
-            this.redefineBB(image)
-            this.canvas.centerObject(image).add(image).renderAll()
+            this.canvas.setBackgroundImage(image, this.canvas.renderAll.bind(this.canvas), {
+              top: 0,
+              left: 0,
+            })
+            // image.set({
+            //   angle: 0,
+            //   width: imgObj.width,
+            //   height: imgObj.height,
+            // });
+            // this.redefineBB(image)
+            // this.canvas.centerObject(image).add(image).renderAll()
           }
         }
         reader.readAsDataURL(e.target.files[0])
@@ -419,6 +488,25 @@ export default {
         e.preventDefault()
         this.pasteObj(clonedObj)
       })
+    },
+    colorDetecter(x, y, w, h, color) {
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      const rgb = [r, g, b]
+      var tl_color = this.getColorByPosition(x, y)
+      var tr_color = this.getColorByPosition(x + w, y)
+      var bl_color = this.getColorByPosition(x, y + h)
+      var br_color = this.getColorByPosition(x + w, y + h)
+      if (
+        this.getColorClose(rgb, tl_color) ||
+        this.getColorClose(rgb, tr_color) ||
+        this.getColorClose(rgb, bl_color) ||
+        this.getColorClose(rgb, br_color)
+      ) {
+        return true
+      }
+      return false
     },
 
     /**
@@ -495,63 +583,175 @@ export default {
     },
 
     /*
+     * Layer Adjustments.
+     */
+    bringToFront() {
+      var obj= this.canvas.getActiveObject()
+      obj.bringToFront()
+    },
+    sendToBack() {
+      var obj= this.canvas.getActiveObject()
+      obj.sendToBack()
+    },
+    bringForward() {
+      var obj= this.canvas.getActiveObject()
+      obj.bringForward()
+    },
+    sendBackwards() {
+      var obj= this.canvas.getActiveObject()
+      obj.sendBackwards()
+    },
+
+    /*
      * Add objects.
      */
-    addRect() {
-      var rect = new fabric.Rect({
-        top: 50,
-        left: 50,
-        width: 100,
-        height: 100,
-        stroke: 'black',
-        strokeWidth: 3,
-        fill: "white",
+    addRect(options = {}) {
+      const {
+        top = 50,
+        left = 50,
+        width = 100,
+        height = 100,
+        stroke = 'black',
+        strokeWidth = 1,
+        fill = "white"
+      } = options;
+      
+      const rect = new fabric.Rect({
+        top: top,
+        left: left,
+        width: width,
+        height: height,
+        stroke: stroke,
+        strokeWidth: strokeWidth,
+        fill: fill,
       });
-      rect.set('objectCaching', false)
+      rect.set('objectCaching', false);
       this.canvas.add(rect);
     },
-    addCircle() {
-      var circle = new fabric.Circle({
-        top: 50,
-        left: 50,
-        radius: 100,
-        stroke: 'black',
-        strokeWidth: 3,
-        fill: "white",
+    
+    addCircle(options = {}) {
+      const {
+        top = 50,
+        left = 50,
+        radius = 100,
+        stroke = 'black',
+        strokeWidth = 1,
+        fill = "white"
+      } = options;
+
+      const circle = new fabric.Circle({
+        top,
+        left,
+        radius,
+        stroke,
+        strokeWidth,
+        fill
       });
-      circle.set('objectCaching', false)
+      circle.set('objectCaching', false);
       this.canvas.add(circle);
     },
-    addTri() {
-      var tri = new fabric.Triangle({
-        top: 50,
-        left: 50,
-        width: 100,
-        height: 100,
-        stroke: 'black',
-        strokeWidth: 3,
-        fill: "white",
+
+    addTri(options = {}) {
+      const {
+        top = 50,
+        left = 50,
+        width = 100,
+        height = 100,
+        stroke = 'black',
+        strokeWidth = 1,
+        fill = "white"
+      } = options;
+
+      const tri = new fabric.Triangle({
+        top,
+        left,
+        width,
+        height,
+        stroke,
+        strokeWidth,
+        fill
       });
-      tri.set('objectCaching', false)
+      tri.set('objectCaching', false);
       this.canvas.add(tri);
     },
-    addTextBox() {
+
+    addTextBox(options = {}) {
       if (this.fontFamilySelected == "Default") {
         this.fontFamily = "Times New Roman"
       } else {
         this.fontFamily = this.fontFamilySelected
       }
-      var tb = new fabric.Textbox("输入文字 Text", {
-        left: 50,
-        top: 50,
-        fontSize: 50,
-        fontFamily: this.fontFamily,
+
+      const {
+        left = 150,
+        top = 150,
+        fontSize = 50,
+        fontFamily = this.fontFamily,
+        text = "输入文字 Text"
+      } = options;
+
+      const tb = new fabric.Textbox(text, {
+        fontSize,
+        fontFamily
       });
-      tb.set('objectCaching', false)
-      this.canvas.add(tb).renderAll();
+      var point = new fabric.Point(left, top)
+      tb.setPositionByOrigin(point, 'center', 'center')
+      tb.set('objectCaching', false);
+      this.canvas.add(tb)
     },
+    addImage(img, options = {}) {
+      const {
+        left = 50,
+        top = 50,
+        width = 0,
+        height = 0,
+      } = options;
+      var fabricImg = new fabric.Image(img)
+      if (width === 0 && height === 0) {  
+        fabricImg.set({
+          width: img.width,
+          height: img.height,
+          angle: 0,
+          left: left,
+          top: top,
+        });
+      }
+      else {
+        var scaleX = width / img.width
+        var scaleY = height / img.height
+        fabricImg.set({
+          angle: 0,
+          left: left,
+          top: top,
+          width: img.width,
+          height: img.height,
+          scaleX: scaleX,
+          scaleY: scaleY,
+        });
+      }
+      fabricImg.set('objectCaching', false);
+      fabricImg.sendToBack()
+      console.log(fabricImg)
+      this.canvas.add(fabricImg)
+    },
+    addRectClick() {
+      this.addRect()
+    },
+    addCircleClick() {
+      this.addCircle()
+    },
+    addTriClick() {
+      this.addTri()
+    },
+    addTextBoxClick() {
+      this.addTextBox()
+    },
+
     uploadImage() {
       document.getElementById("imageInput").click();
+    },
+    uploadBg() {
+      document.getElementById("bgInput").click();
     },
 
     /*
@@ -618,6 +818,24 @@ export default {
           console.error(error);
         });
     },
+    getColorByPosition(x, y) {
+      const context = this.canvas.getContext('2d');
+      const imageData = context.getImageData(x, y, 1, 1);
+      const color = [imageData.data[0], imageData.data[1], imageData.data[2]];
+
+      return color
+    },
+    getColorClose(c1, c2) {
+      const colorDistance = Math.sqrt(
+        Math.pow(c1[0] - c2[0], 2) +
+        Math.pow(c1[1] - c2[1], 2) +
+        Math.pow(c1[2] - c2[2], 2)
+      )
+      if (colorDistance < 50) {
+        return true
+      }
+      return false
+    }
 
   },
   mounted() {
@@ -625,6 +843,7 @@ export default {
     this.initImageUploader()
     this.initJSONUploader()
     this.initKeyboardEvent()
+    this.initLayout()
   },
 };
 </script>
