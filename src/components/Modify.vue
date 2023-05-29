@@ -16,14 +16,19 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
     no-gutters
     >
 
-    <v-img 
+    <v-card
       v-for="thumbnail in thumbnailList"
-      :key="thumbnail.ts"
-      :src="thumbnail.img"
-      height="200" 
-      class="my-auto elevation-10"
+      class="mx-auto my-auto timelineCard"
+      height="200"
+      width="136"
       >
-    </v-img>
+      <v-img
+        :key="thumbnail.ts"
+        :src="thumbnail.img"
+        @click="recoverFromThumbnail(thumbnail.ts)"
+      >
+      </v-img>
+    </v-card>
 
   </v-row>
   <v-row
@@ -232,10 +237,12 @@ export default {
       textPropValid: false,
       textProp: {
         outline: 0,
+        fillColor: "#000000",
+        outlineColor: "#000000",
         angle: 0,
         left: 0,
         top: 0,
-        font: "",
+        fontFamily: "",
       },
       constValue: {
         outlineMin: 0,
@@ -244,7 +251,16 @@ export default {
         angleMax: 360,
         colorModes: ["rgba", "hexa", "hex"],
       },
+      productInfo: {
+        title: "",
+        type: "",
+        img: "",
+        text_1: "",
+        text_2: "",
+      },
       showConfirmationDialog: false,
+      icons: ["mdi-delete", "mdi-rewind"],
+      transparent: 'rgba(255, 255, 255, 0)',
     };
   },
   watch: {
@@ -256,8 +272,23 @@ export default {
           obj.stroke = newValue.outlineColor
           obj.strokeWidth = newValue.outline
           obj.angle = newValue.angle
+
           this.canvas.requestRenderAll()
-          // this.canvas.renderAll()
+        }
+      },
+      deep: true
+    },
+    textProp: {
+      handler(newValue, oldValue) {
+        var obj = this.canvas.getActiveObject()
+        if (obj) {
+          obj.fill = newValue.fillColor
+          obj.stroke = newValue.outlineColor
+          obj.strokeWidth = newValue.outline
+          obj.angle = newValue.angle
+          obj.fontFamily = newValue.fontFamily
+
+          this.canvas.requestRenderAll()
         }
       },
       deep: true
@@ -308,13 +339,22 @@ export default {
     },
     updateProp(e) {
       var obj = this.canvas.getActiveObject()
-      this.shapeProp.fillColor = obj.fill
-      this.shapeProp.outlineColor = obj.stroke
-      this.shapeProp.outline = obj.strokeWidth
-      this.shapeProp.angle = obj.angle
+      if ('text' in obj) {
+        this.textProp.fillColor = obj.fill
+        this.textProp.outlineColor = obj.stroke
+        this.textProp.outline = obj.strokeWidth
+        this.textProp.angle = obj.angle
+        this.textProp.fontFamily = obj.fontFamily
+        console.log(obj);
+      } else {
+        this.shapeProp.fillColor = obj.fill
+        this.shapeProp.outlineColor = obj.stroke
+        this.shapeProp.outline = obj.strokeWidth
+        this.shapeProp.angle = obj.angle
+      }
+
     },
     updatePropSetting(e) {
-      // Todo: change selection border
       if (e.selected.length == 1) {
         if (this.shapeType.includes(e.selected[0].type)) {
           this.shapePropValid = true
@@ -464,7 +504,7 @@ export default {
         width: 100,
         height: 100,
         stroke: 'black',
-        strokeWidth: 1,
+        strokeWidth: 3,
         fill: "white",
       });
       rect.set('objectCaching', false)
@@ -476,7 +516,7 @@ export default {
         left: 50,
         radius: 100,
         stroke: 'black',
-        strokeWidth: 1,
+        strokeWidth: 3,
         fill: "white",
       });
       circle.set('objectCaching', false)
@@ -489,7 +529,7 @@ export default {
         width: 100,
         height: 100,
         stroke: 'black',
-        strokeWidth: 1,
+        strokeWidth: 3,
         fill: "white",
       });
       tri.set('objectCaching', false)
@@ -509,7 +549,6 @@ export default {
       });
       tb.set('objectCaching', false)
       this.canvas.add(tb).renderAll();
-
     },
     uploadImage() {
       document.getElementById("imageInput").click();
@@ -561,22 +600,10 @@ export default {
           console.error(error);
         });
     },
-    renderCanvasFromThumbnail() {
-      fetch('canvas.json')
-        .then(response => response.json())
-        .then(jsonData => {
-          this.canvas.clear();
-          this.canvas.loadFromJSON(jsonData, () => {
-            this.canvas.renderAll();
-          });
-        });
-    },
-    renderCanvas() {
-      // 发送请求获取JSON布局数据
-      axios.get('/api/layout')
+    recoverFromThumbnail(ts) {
+      axios.post('/api/layout', {'ts': ts})
         .then(response => {
-          const layoutData = response.data;
-          this.canvas.loadFromJSON(layoutData)
+          this.canvas.loadFromJSON(response.data) 
         })
         .catch(error => {
           console.error(error);
@@ -619,6 +646,10 @@ export default {
   top: 20px;
   left: 0;
   z-index: 9;
+}
+
+.timelineCard {
+  cursor: pointer;
 }
 
 </style>

@@ -92,10 +92,11 @@ def export_canvas():
   return 'Export successful'
 
 
-@app.route('/layout', methods=['GET'])
+@app.route('/layout', methods=['POST'])
 def get_layout():
+  ts = request.json.get('ts')
   # 从文件中读取JSON布局数据并发送回前端
-  layout_path = os.path.join(base_path, 'layout.json')
+  layout_path = os.path.join(base_path, f'{ts}.json')
   with open(layout_path, 'r') as f:
     layout_data = json.load(f)
 
